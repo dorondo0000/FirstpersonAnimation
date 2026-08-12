@@ -1,0 +1,1759 @@
+{
+	"hand_animation_on_swap": false,
+	"swap_animation_scale": 0,
+	"model": {
+		"type": "minecraft:select",
+		"property": "minecraft:display_context",
+		"cases": [
+			{
+				"when": [
+					"firstperson_righthand",
+					"firstperson_lefthand"
+				],
+				"model": {
+					"type": "minecraft:condition",
+					"property": "minecraft:component",
+					"predicate": "minecraft:custom_data",
+					"value": {
+						"fpa": "fire"
+					},
+					"on_true": {
+						"type": "minecraft:composite",
+						"models": [
+							{
+								"type": "minecraft:range_dispatch",
+								"property": "minecraft:cooldown",
+								"entries": [
+									{
+										"threshold": 0,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame"
+										}
+									},
+									{
+										"threshold": 0.111111,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.01689,
+													0.0074
+												],
+												"left_rotation": [
+													0.01047,
+													0,
+													0,
+													0.99995
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.222222,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.03389,
+													0.01508
+												],
+												"left_rotation": [
+													0.02094,
+													0,
+													0,
+													0.99978
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.333333,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.05099,
+													0.02304
+												],
+												"left_rotation": [
+													0.03141,
+													0,
+													0,
+													0.99951
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.444444,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.06818,
+													0.03127
+												],
+												"left_rotation": [
+													0.04188,
+													0,
+													0,
+													0.99912
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.555556,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.08545,
+													0.03979
+												],
+												"left_rotation": [
+													0.05234,
+													0,
+													0,
+													0.99863
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.666667,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.12897,
+													0.06859
+												],
+												"left_rotation": [
+													0.07846,
+													0,
+													0,
+													0.99692
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.777778,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame",
+											"transformation": {
+												"translation": [
+													0,
+													0.17291,
+													0.09918
+												],
+												"left_rotation": [
+													0.10453,
+													0,
+													0,
+													0.99452
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.888889,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/frame"
+										}
+									}
+								],
+								"fallback": {
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/frame"
+								}
+							},
+							{
+								"type": "minecraft:range_dispatch",
+								"property": "minecraft:cooldown",
+								"entries": [
+									{
+										"threshold": 0,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/slide"
+										}
+									},
+									{
+										"threshold": 0.555556,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/slide",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0.0625
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.666667,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/slide",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0.16667
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.777778,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/slide",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0.20833
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													1,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.888889,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/parts/slide"
+										}
+									}
+								],
+								"fallback": {
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/slide"
+								}
+							},
+							{
+								"type": "minecraft:model",
+								"model": "fpa:item/pistol/parts/mag"
+							}
+						]
+					},
+					"on_false": {
+						"type": "minecraft:condition",
+						"property": "minecraft:component",
+						"predicate": "minecraft:custom_data",
+						"value": {
+							"fpa": "reload"
+						},
+						"on_true": {
+							"type": "minecraft:composite",
+							"models": [
+								{
+									"type": "minecraft:range_dispatch",
+									"property": "minecraft:cooldown",
+									"entries": [
+										{
+											"threshold": 0,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame"
+											}
+										},
+										{
+											"threshold": 0.034483,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.0367,
+														-0.0516,
+														0.04683
+													],
+													"left_rotation": [
+														-0.01942,
+														0.02416,
+														0.00825,
+														0.99949
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.068966,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.07205,
+														-0.10066,
+														0.09612
+													],
+													"left_rotation": [
+														-0.03837,
+														0.04862,
+														0.01554,
+														0.99796
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.103448,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.10604,
+														-0.14701,
+														0.14762
+													],
+													"left_rotation": [
+														-0.05682,
+														0.07332,
+														0.02183,
+														0.99545
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.137931,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.13863,
+														-0.1905,
+														0.20109
+													],
+													"left_rotation": [
+														-0.07472,
+														0.09822,
+														0.02712,
+														0.99199
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.172414,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.16981,
+														-0.23101,
+														0.2563
+													],
+													"left_rotation": [
+														-0.09202,
+														0.12326,
+														0.03138,
+														0.9876
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.206897,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.19955,
+														-0.26843,
+														0.31296
+													],
+													"left_rotation": [
+														-0.1087,
+														0.14839,
+														0.03459,
+														0.98233
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.241379,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.22785,
+														-0.30267,
+														0.37083
+													],
+													"left_rotation": [
+														-0.12472,
+														0.17356,
+														0.03676,
+														0.9762
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.275862,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.2547,
+														-0.33366,
+														0.42963
+													],
+													"left_rotation": [
+														-0.14004,
+														0.19871,
+														0.03786,
+														0.96926
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.827586,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.21104,
+														-0.28251,
+														0.33598
+													],
+													"left_rotation": [
+														-0.11519,
+														0.15846,
+														0.03559,
+														0.97998
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.862069,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.16368,
+														-0.22315,
+														0.24513
+													],
+													"left_rotation": [
+														-0.08861,
+														0.11824,
+														0.03061,
+														0.98855
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.896552,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.11267,
+														-0.15594,
+														0.15816
+													],
+													"left_rotation": [
+														-0.06044,
+														0.07829,
+														0.02297,
+														0.99483
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.931034,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame",
+												"transformation": {
+													"translation": [
+														-0.05807,
+														-0.08135,
+														0.07612
+													],
+													"left_rotation": [
+														-0.03085,
+														0.0388,
+														0.01274,
+														0.99869
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.965517,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/frame"
+											}
+										}
+									],
+									"fallback": {
+										"type": "minecraft:model",
+										"model": "fpa:item/pistol/parts/frame"
+									}
+								},
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/slide"
+								},
+								{
+									"type": "minecraft:range_dispatch",
+									"property": "minecraft:cooldown",
+									"entries": [
+										{
+											"threshold": 0,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag"
+											}
+										},
+										{
+											"threshold": 0.344828,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.125,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.37931,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.25,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.413793,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.375,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.448276,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.5,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.482759,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.625,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.517241,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.75,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.551724,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.875,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.655172,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.72917,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.689655,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.58333,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.724138,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.4375,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.758621,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.29167,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.793103,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag",
+												"transformation": {
+													"translation": [
+														0,
+														-0.14583,
+														0
+													],
+													"left_rotation": [
+														0,
+														0,
+														0,
+														1
+													],
+													"scale": [
+														1,
+														1,
+														1
+													],
+													"right_rotation": [
+														0,
+														0,
+														0,
+														1
+													]
+												}
+											}
+										},
+										{
+											"threshold": 0.827586,
+											"model": {
+												"type": "minecraft:model",
+												"model": "fpa:item/pistol/parts/mag"
+											}
+										}
+									],
+									"fallback": {
+										"type": "minecraft:model",
+										"model": "fpa:item/pistol/parts/mag"
+									}
+								}
+							]
+						},
+						"on_false": {
+							"type": "minecraft:composite",
+							"models": [
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/frame"
+								},
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/slide"
+								},
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/mag"
+								}
+							]
+						}
+					}
+				}
+			},
+			{
+				"when": [
+					"gui"
+				],
+				"model": {
+					"type": "minecraft:composite",
+					"models": [
+						{
+							"type": "minecraft:composite",
+							"models": [
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/frame"
+								},
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/slide"
+								},
+								{
+									"type": "minecraft:model",
+									"model": "fpa:item/pistol/parts/mag"
+								}
+							]
+						},
+						{
+							"type": "minecraft:condition",
+							"property": "minecraft:component",
+							"predicate": "minecraft:custom_data",
+							"value": {
+								"fpa_bar": true
+							},
+							"on_true": {
+								"type": "minecraft:range_dispatch",
+								"property": "minecraft:cooldown",
+								"entries": [
+									{
+										"threshold": 0,
+										"model": {
+											"type": "minecraft:empty"
+										}
+									},
+									{
+										"threshold": 0.000001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.0625,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.062501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.125,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.125001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.1875,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.187501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.25,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.250001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.3125,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.312501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.375,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.375001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.4375,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.437501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.5,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.500001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.5625,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.562501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.625,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.625001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.6875,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.687501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.75,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.750001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.8125,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.812501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.875,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.875001,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar",
+											"transformation": {
+												"translation": [
+													0,
+													0,
+													0
+												],
+												"left_rotation": [
+													0,
+													0,
+													0,
+													1
+												],
+												"scale": [
+													1,
+													0.9375,
+													1
+												],
+												"right_rotation": [
+													0,
+													0,
+													0,
+													1
+												]
+											}
+										}
+									},
+									{
+										"threshold": 0.937501,
+										"model": {
+											"type": "minecraft:model",
+											"model": "fpa:item/pistol/cooldown_bar"
+										}
+									}
+								],
+								"fallback": {
+									"type": "minecraft:empty"
+								}
+							},
+							"on_false": {
+								"type": "minecraft:empty"
+							}
+						}
+					]
+				}
+			}
+		],
+		"fallback": {
+			"type": "minecraft:composite",
+			"models": [
+				{
+					"type": "minecraft:model",
+					"model": "fpa:item/pistol/parts/frame"
+				},
+				{
+					"type": "minecraft:model",
+					"model": "fpa:item/pistol/parts/slide"
+				},
+				{
+					"type": "minecraft:model",
+					"model": "fpa:item/pistol/parts/mag"
+				}
+			]
+		}
+	}
+}

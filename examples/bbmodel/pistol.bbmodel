@@ -1,0 +1,1115 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "firstperson_animation",
+		"box_uv": false
+	},
+	"name": "pistol",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"fpa_settings": {
+		"namespace": "fpa",
+		"item_name": "pistol",
+		"min_format": 84,
+		"max_format": 93,
+		"fps": 20,
+		"pivot": "corner",
+		"cooldown_bar": true,
+		"branch_property": "custom_model_data"
+	},
+	"elements": [
+		{
+			"name": "receiver",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				6,
+				3,
+				4
+			],
+			"to": [
+				10,
+				6,
+				12
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				4,
+				10
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						4,
+						8,
+						8
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						4,
+						8,
+						8
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						4,
+						8,
+						8
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						4,
+						8,
+						8
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						4,
+						8,
+						8
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						4,
+						8,
+						8
+					],
+					"texture": 0,
+					"rotation": 0
+				}
+			},
+			"uuid": "00000001-0000-4000-8000-000000000001",
+			"type": "cube"
+		},
+		{
+			"name": "grip",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				6.5,
+				0,
+				8
+			],
+			"to": [
+				9.5,
+				3.5,
+				12
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				4,
+				10
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						4,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						4,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						4,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						4,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						4,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						4,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				}
+			},
+			"uuid": "00000002-0000-4000-8000-000000000002",
+			"type": "cube"
+		},
+		{
+			"name": "barrel",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				7,
+				4,
+				0
+			],
+			"to": [
+				9,
+				5.5,
+				5
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				4,
+				10
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12,
+						0,
+						16,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"east": {
+					"uv": [
+						12,
+						0,
+						16,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"south": {
+					"uv": [
+						12,
+						0,
+						16,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"west": {
+					"uv": [
+						12,
+						0,
+						16,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"up": {
+					"uv": [
+						12,
+						0,
+						16,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"down": {
+					"uv": [
+						12,
+						0,
+						16,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				}
+			},
+			"uuid": "00000003-0000-4000-8000-000000000003",
+			"type": "cube"
+		},
+		{
+			"name": "slide",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				6,
+				6,
+				3
+			],
+			"to": [
+				10,
+				8,
+				12
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				6,
+				10
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						0,
+						8,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"east": {
+					"uv": [
+						4,
+						0,
+						8,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"south": {
+					"uv": [
+						4,
+						0,
+						8,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"west": {
+					"uv": [
+						4,
+						0,
+						8,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"up": {
+					"uv": [
+						4,
+						0,
+						8,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"down": {
+					"uv": [
+						4,
+						0,
+						8,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				}
+			},
+			"uuid": "00000005-0000-4000-8000-000000000005",
+			"type": "cube"
+		},
+		{
+			"name": "magazine",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				6.75,
+				0.5,
+				8.5
+			],
+			"to": [
+				9.25,
+				3.5,
+				11.5
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				3.5,
+				10
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						8,
+						0,
+						12,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"east": {
+					"uv": [
+						8,
+						0,
+						12,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"south": {
+					"uv": [
+						8,
+						0,
+						12,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"west": {
+					"uv": [
+						8,
+						0,
+						12,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"up": {
+					"uv": [
+						8,
+						0,
+						12,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"down": {
+					"uv": [
+						8,
+						0,
+						12,
+						4
+					],
+					"texture": 0,
+					"rotation": 0
+				}
+			},
+			"uuid": "00000007-0000-4000-8000-000000000007",
+			"type": "cube"
+		}
+	],
+	"outliner": [
+		{
+			"name": "frame",
+			"origin": [
+				8,
+				4,
+				10
+			],
+			"color": 0,
+			"uuid": "00000004-0000-4000-8000-000000000004",
+			"export": true,
+			"mirror_uv": false,
+			"isOpen": true,
+			"locked": false,
+			"visibility": true,
+			"autouv": 0,
+			"children": [
+				"00000001-0000-4000-8000-000000000001",
+				"00000002-0000-4000-8000-000000000002",
+				"00000003-0000-4000-8000-000000000003"
+			]
+		},
+		{
+			"name": "slide",
+			"origin": [
+				8,
+				6,
+				10
+			],
+			"color": 0,
+			"uuid": "00000006-0000-4000-8000-000000000006",
+			"export": true,
+			"mirror_uv": false,
+			"isOpen": true,
+			"locked": false,
+			"visibility": true,
+			"autouv": 0,
+			"children": [
+				"00000005-0000-4000-8000-000000000005"
+			]
+		},
+		{
+			"name": "mag",
+			"origin": [
+				8,
+				3.5,
+				10
+			],
+			"color": 0,
+			"uuid": "00000008-0000-4000-8000-000000000008",
+			"export": true,
+			"mirror_uv": false,
+			"isOpen": true,
+			"locked": false,
+			"visibility": true,
+			"autouv": 0,
+			"children": [
+				"00000007-0000-4000-8000-000000000007"
+			]
+		}
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "pistol.png",
+			"folder": "item/pistol",
+			"namespace": "fpa",
+			"id": "0",
+			"group": "",
+			"width": 16,
+			"height": 16,
+			"uv_width": 16,
+			"uv_height": 16,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": false,
+			"uuid": "00000025-0000-4000-8000-000000000025",
+			"relative_path": "",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAPklEQVR42mOwsnH6j4xLKhpQcIyXCQqWkJBCwQzDwAANLb3/+PC0WYvw4uFgQE2C1X98eIuNOV48asCwMAAAGGQNH54pao0AAAAASUVORK5CYII="
+		}
+	],
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				2,
+				4,
+				-8
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		},
+		"firstperson_lefthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				2,
+				4,
+				-8
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		},
+		"thirdperson_righthand": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				0,
+				4,
+				1
+			],
+			"scale": [
+				0.7,
+				0.7,
+				0.7
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				0,
+				90,
+				0
+			],
+			"translation": [
+				0,
+				4,
+				1
+			],
+			"scale": [
+				0.7,
+				0.7,
+				0.7
+			]
+		},
+		"gui": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				0.8,
+				0.8,
+				0.8
+			]
+		},
+		"ground": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				0
+			],
+			"scale": [
+				0.5,
+				0.5,
+				0.5
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				0.9,
+				0.9,
+				0.9
+			]
+		}
+	},
+	"animations": [
+		{
+			"uuid": "00000015-0000-4000-8000-000000000015",
+			"name": "fire",
+			"loop": "once",
+			"override": false,
+			"length": 0.4,
+			"snapping": 20,
+			"selected": false,
+			"saved": true,
+			"path": "",
+			"anim_time_update": "",
+			"blend_weight": "",
+			"start_delay": "",
+			"loop_delay": "",
+			"animators": {
+				"00000004-0000-4000-8000-000000000004": {
+					"name": "frame",
+					"type": "bone",
+					"keyframes": [
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000009-0000-4000-8000-000000000009",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000000a-0000-4000-8000-00000000000a",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "-12",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000000b-0000-4000-8000-00000000000b",
+							"time": 0.05,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0.6",
+									"z": "2.2"
+								}
+							],
+							"uuid": "0000000c-0000-4000-8000-00000000000c",
+							"time": 0.05,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "-6",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000000d-0000-4000-8000-00000000000d",
+							"time": 0.15,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0.3",
+									"z": "1"
+								}
+							],
+							"uuid": "0000000e-0000-4000-8000-00000000000e",
+							"time": 0.15,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000000f-0000-4000-8000-00000000000f",
+							"time": 0.4,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000010-0000-4000-8000-000000000010",
+							"time": 0.4,
+							"color": -1,
+							"interpolation": "linear"
+						}
+					]
+				},
+				"00000006-0000-4000-8000-000000000006": {
+					"name": "slide",
+					"type": "bone",
+					"keyframes": [
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000011-0000-4000-8000-000000000011",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "4"
+								}
+							],
+							"uuid": "00000012-0000-4000-8000-000000000012",
+							"time": 0.06,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000013-0000-4000-8000-000000000013",
+							"time": 0.18,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000014-0000-4000-8000-000000000014",
+							"time": 0.4,
+							"color": -1,
+							"interpolation": "linear"
+						}
+					]
+				}
+			}
+		},
+		{
+			"uuid": "00000024-0000-4000-8000-000000000024",
+			"name": "reload",
+			"loop": "once",
+			"override": false,
+			"length": 1.4,
+			"snapping": 20,
+			"selected": false,
+			"saved": true,
+			"path": "",
+			"anim_time_update": "",
+			"blend_weight": "",
+			"start_delay": "",
+			"loop_delay": "",
+			"animators": {
+				"00000004-0000-4000-8000-000000000004": {
+					"name": "frame",
+					"type": "bone",
+					"keyframes": [
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000016-0000-4000-8000-000000000016",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000017-0000-4000-8000-000000000017",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "18",
+									"y": "-22",
+									"z": "8"
+								}
+							],
+							"uuid": "00000018-0000-4000-8000-000000000018",
+							"time": 0.25,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "1.5",
+									"y": "-2.5",
+									"z": "1.5"
+								}
+							],
+							"uuid": "00000019-0000-4000-8000-000000000019",
+							"time": 0.25,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "18",
+									"y": "-22",
+									"z": "8"
+								}
+							],
+							"uuid": "0000001a-0000-4000-8000-00000000001a",
+							"time": 1,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "1.5",
+									"y": "-2.5",
+									"z": "1.5"
+								}
+							],
+							"uuid": "0000001b-0000-4000-8000-00000000001b",
+							"time": 1,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000001c-0000-4000-8000-00000000001c",
+							"time": 1.4,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000001d-0000-4000-8000-00000000001d",
+							"time": 1.4,
+							"color": -1,
+							"interpolation": "linear"
+						}
+					]
+				},
+				"00000008-0000-4000-8000-000000000008": {
+					"name": "mag",
+					"type": "bone",
+					"keyframes": [
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000001e-0000-4000-8000-00000000001e",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "0000001f-0000-4000-8000-00000000001f",
+							"time": 0.2,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "-14",
+									"z": "0"
+								}
+							],
+							"uuid": "00000020-0000-4000-8000-000000000020",
+							"time": 0.5,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "-14",
+									"z": "0"
+								}
+							],
+							"uuid": "00000021-0000-4000-8000-000000000021",
+							"time": 0.6,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000022-0000-4000-8000-000000000022",
+							"time": 0.95,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "position",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000023-0000-4000-8000-000000000023",
+							"time": 1.4,
+							"color": -1,
+							"interpolation": "linear"
+						}
+					]
+				}
+			}
+		}
+	]
+}

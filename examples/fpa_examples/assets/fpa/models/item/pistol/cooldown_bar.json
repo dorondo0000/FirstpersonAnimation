@@ -1,0 +1,66 @@
+{
+	"texture_size": [
+		16,
+		16
+	],
+	"textures": {
+		"0": "fpa:item/pistol/_cooldown_overlay",
+		"particle": "fpa:item/pistol/_cooldown_overlay"
+	},
+	"elements": [
+		{
+			"name": "cooldown_plate",
+			"from": [
+				0,
+				0,
+				19.99
+			],
+			"to": [
+				16,
+				16,
+				20
+			],
+			"shade": false,
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	],
+	"gui_light": "front",
+	"display": {
+		"gui": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				1,
+				1,
+				1
+			]
+		}
+	}
+}

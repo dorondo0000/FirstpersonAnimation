@@ -1,0 +1,8 @@
+# examples/ is deliberately committed: it is the reference pack you drop straight
+# into resourcepacks/, plus the .bbmodel sources the plugin opens.
+
+node_modules/
+*.log
+*.zip
+Thumbs.db
+.DS_Store

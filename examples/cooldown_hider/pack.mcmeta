@@ -1,0 +1,7 @@
+{
+	"pack": {
+		"description": "Firstperson Animation - hides the vanilla hotbar cooldown overlay",
+		"min_format": 84,
+		"max_format": 93
+	}
+}

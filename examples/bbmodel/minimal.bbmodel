@@ -1,0 +1,362 @@
+{
+	"meta": {
+		"format_version": "4.10",
+		"model_format": "firstperson_animation",
+		"box_uv": false
+	},
+	"name": "minimal",
+	"model_identifier": "",
+	"visible_box": [
+		1,
+		1,
+		0
+	],
+	"variable_placeholders": "",
+	"variable_placeholder_buttons": [],
+	"timeline_setups": [],
+	"unhandled_root_fields": {},
+	"resolution": {
+		"width": 16,
+		"height": 16
+	},
+	"fpa_settings": {
+		"namespace": "fpa",
+		"item_name": "minimal",
+		"min_format": 84,
+		"max_format": 93,
+		"fps": 20,
+		"pivot": "corner",
+		"cooldown_bar": false,
+		"branch_property": "custom_model_data"
+	},
+	"elements": [
+		{
+			"name": "stick",
+			"box_uv": false,
+			"rescale": false,
+			"locked": false,
+			"render_order": "default",
+			"allow_mirror_modeling": true,
+			"from": [
+				6,
+				2,
+				1
+			],
+			"to": [
+				10,
+				6,
+				13
+			],
+			"autouv": 0,
+			"color": 0,
+			"origin": [
+				8,
+				4,
+				13
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						8,
+						8,
+						16
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"east": {
+					"uv": [
+						0,
+						8,
+						8,
+						16
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"south": {
+					"uv": [
+						0,
+						8,
+						8,
+						16
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"west": {
+					"uv": [
+						0,
+						8,
+						8,
+						16
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"up": {
+					"uv": [
+						0,
+						8,
+						8,
+						16
+					],
+					"texture": 0,
+					"rotation": 0
+				},
+				"down": {
+					"uv": [
+						0,
+						8,
+						8,
+						16
+					],
+					"texture": 0,
+					"rotation": 0
+				}
+			},
+			"uuid": "00000001-0000-4000-8000-000000000001",
+			"type": "cube"
+		}
+	],
+	"outliner": [
+		{
+			"name": "stick",
+			"origin": [
+				8,
+				4,
+				13
+			],
+			"color": 0,
+			"uuid": "00000002-0000-4000-8000-000000000002",
+			"export": true,
+			"mirror_uv": false,
+			"isOpen": true,
+			"locked": false,
+			"visibility": true,
+			"autouv": 0,
+			"children": [
+				"00000001-0000-4000-8000-000000000001"
+			]
+		}
+	],
+	"textures": [
+		{
+			"path": "",
+			"name": "pistol.png",
+			"folder": "item/minimal",
+			"namespace": "fpa",
+			"id": "0",
+			"group": "",
+			"width": 16,
+			"height": 16,
+			"uv_width": 16,
+			"uv_height": 16,
+			"particle": true,
+			"use_as_default": false,
+			"layers_enabled": false,
+			"sync_to_project": "",
+			"render_mode": "default",
+			"render_sides": "auto",
+			"frame_time": 1,
+			"frame_order_type": "loop",
+			"frame_order": "",
+			"frame_interpolate": false,
+			"visible": true,
+			"internal": true,
+			"saved": false,
+			"uuid": "00000007-0000-4000-8000-000000000007",
+			"relative_path": "",
+			"source": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAPklEQVR42mOwsnH6j4xLKhpQcIyXCQqWkJBCwQzDwAANLb3/+PC0WYvw4uFgQE2C1X98eIuNOV48asCwMAAAGGQNH54pao0AAAAASUVORK5CYII="
+		}
+	],
+	"display": {
+		"firstperson_righthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				2,
+				4,
+				-8
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		},
+		"firstperson_lefthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				2,
+				4,
+				-8
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		},
+		"thirdperson_righthand": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				0,
+				4,
+				1
+			],
+			"scale": [
+				0.7,
+				0.7,
+				0.7
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				0,
+				90,
+				0
+			],
+			"translation": [
+				0,
+				4,
+				1
+			],
+			"scale": [
+				0.7,
+				0.7,
+				0.7
+			]
+		},
+		"gui": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				0.8,
+				0.8,
+				0.8
+			]
+		},
+		"ground": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				0
+			],
+			"scale": [
+				0.5,
+				0.5,
+				0.5
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				-90,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				0.9,
+				0.9,
+				0.9
+			]
+		}
+	},
+	"animations": [
+		{
+			"uuid": "00000006-0000-4000-8000-000000000006",
+			"name": "swing",
+			"loop": "once",
+			"override": false,
+			"length": 0.3,
+			"snapping": 20,
+			"selected": false,
+			"saved": true,
+			"path": "",
+			"anim_time_update": "",
+			"blend_weight": "",
+			"start_delay": "",
+			"loop_delay": "",
+			"animators": {
+				"00000002-0000-4000-8000-000000000002": {
+					"name": "stick",
+					"type": "bone",
+					"keyframes": [
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000003-0000-4000-8000-000000000003",
+							"time": 0,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "55",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000004-0000-4000-8000-000000000004",
+							"time": 0.12,
+							"color": -1,
+							"interpolation": "linear"
+						},
+						{
+							"channel": "rotation",
+							"data_points": [
+								{
+									"x": "0",
+									"y": "0",
+									"z": "0"
+								}
+							],
+							"uuid": "00000005-0000-4000-8000-000000000005",
+							"time": 0.3,
+							"color": -1,
+							"interpolation": "linear"
+						}
+					]
+				}
+			}
+		}
+	]
+}

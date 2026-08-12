@@ -1,0 +1,49 @@
+# ======================================================================
+# Firstperson Animation — fpa:minimal
+#
+# needs: Skript 2.13+   (set item cooldown of ... for ...)
+#        SkBee  3.12+   (item model of ... / custom nbt of ...)
+#
+# The pack does everything client side. The server only sets:
+#   1. minecraft:item_model   -> "fpa:minimal"
+#   2. minecraft:custom_data  -> the animation name under "fpa"
+#   3. a vanilla item cooldown -> the playback head
+# Any item type works; the model replaces its appearance entirely.
+# ======================================================================
+
+options:
+	model: fpa:minimal
+	anim: fpa
+	base: stick   # cosmetic only — the item model replaces it
+
+# --- build ------------------------------------------------------------
+
+function fpa_minimal_item() :: item:
+	set {_i} to {@base}
+	set item model of {_i} to "{@model}"
+	return {_i}
+
+function fpa_minimal_give(p: player):
+	give fpa_minimal_item() to {_p}
+
+# --- play -------------------------------------------------------------
+#
+# The cooldown IS the playback head: its length sets both the speed and how
+# many poses the client can resolve (ticks + 1, hard ceiling 20/sec).
+
+function fpa_minimal_swing(p: player):
+	set {_i} to {_p}'s tool
+	set string tag "{@anim}" of custom nbt of {_i} to "swing"
+	set {_p}'s tool to {_i}
+	set item cooldown of {_i} for {_p} to 6 ticks   # 7 baked frames
+
+# --- example wiring ---------------------------------------------------
+
+command /fpa_minimal:
+	trigger:
+		fpa_minimal_give(player)
+
+on right click:
+	item model of player's tool is "{@model}"
+	player doesn't have an item cooldown on player's tool
+	fpa_minimal_swing(player)
