@@ -40,13 +40,9 @@ Driving the animation from a cooldown has a visible side effect: vanilla sweeps 
 
 Turn it on only if you want the sweep gone on weapons but kept on items where the cooldown is genuine. Two pieces:
 
-**1. Hide vanilla's.** A core shader, which has to sit at the vanilla path `assets/minecraft/shaders/core/gui.fsh` — which is why it is a **separate pack** and not part of the export:
+**1. Hide vanilla's.** `File > Export > Generate Cooldown Hider Pack…`, then point it at your Minecraft client jar. It reads the vanilla `gui.fsh` out of that jar, inserts a discard for `0x7FFFFFFF`, and writes a second pack — separate because a core shader has to sit at the vanilla path `assets/minecraft/shaders/core/gui.fsh`. Load it above your animation pack.
 
-```powershell
-.\tools\make_cooldown_hider.ps1 -Jar "…\minecraft-26.3-snapshot-5-client.jar"
-```
-
-It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard for `0x7FFFFFFF`. No guessed shader is ever shipped: one that fails to compile takes the whole GUI down with it. Regenerate it whenever you change Minecraft version.
+No shader is ever shipped pre-made: sources change between versions and one that fails to compile takes the whole GUI down with it. Regenerate whenever you change Minecraft version.
 
 Blast radius: this hides the overlay for **every** item in the game, ender pearls and food included.
 

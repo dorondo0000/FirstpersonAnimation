@@ -1,10 +1,9 @@
 # Kept local, not shipped: the example packs and .bbmodel sources, the generator
-# that produces them, the long-form notes, and the debugging aids.
+# that produces them, the long-form notes, and the standalone scripts that the
+# plugin has since absorbed.
 examples/
 docs/
-tools/make_examples.mjs
-tools/diagnose.js
-tools/cooldown_discard.glsl
+tools/
 
 node_modules/
 *.log

@@ -927,6 +927,119 @@ function repairTimeline() {
 }
 
 // ---------------------------------------------------------------------------
+// cooldown hider — the other half of the cooldown bar
+// ---------------------------------------------------------------------------
+//
+// Vanilla sweeps its hotbar overlay every time the animation plays, because the
+// animation IS a cooldown. Hiding it needs a core shader, and a core shader has
+// to sit at the vanilla path assets/minecraft/shaders/core/gui.fsh — which is
+// why this is a second, separate pack rather than part of the export.
+//
+// The shader is never shipped pre-made. Core shader sources change between
+// versions and one that fails to compile takes the whole GUI down, so this
+// patches the vanilla gui.fsh out of YOUR client jar.
+
+function patchGuiShader(source) {
+	if (/FIRSTPERSON ANIMATION/.test(source)) {
+		throw new Error('That gui.fsh is already patched.');
+	}
+	// 26.3 writes it as `layout(location = 0) in vec4 vertexColor;`
+	const varying = source.match(/^[^\S\n]*(?:layout\s*\([^)]*\)\s*)?in\s+vec4\s+(\w*[Cc]olor\w*)\s*;/m);
+	if (!varying) {
+		throw new Error('No "in vec4 <something>Color;" varying found in gui.fsh. ' +
+			'The shader layout changed — patch it by hand instead.');
+	}
+	const main = source.match(/void\s+main\s*\(\s*\)\s*\{/);
+	if (!main) throw new Error('No main() found in gui.fsh.');
+
+	const name = varying[1];
+	const snippet = '\n' +
+		'    // --- FIRSTPERSON ANIMATION -------------------------------------------\n' +
+		'    // The hotbar item cooldown overlay is a flat fill of ARGB 0x7FFFFFFF:\n' +
+		'    // pure white at alpha 127/255. Drop exactly that colour so the merged\n' +
+		'    // model in the item definition can draw the bar instead.\n' +
+		'    if (' + name + '.r > 0.99 && ' + name + '.g > 0.99 && ' + name + '.b > 0.99 &&\n' +
+		'        abs(' + name + '.a - 0.49803922) < 0.004) {\n' +
+		'        discard;\n' +
+		'    }\n' +
+		'    // ---------------------------------------------------------------------\n';
+
+	const at = main.index + main[0].length;
+	return { source: source.slice(0, at) + snippet + source.slice(at), varying: name };
+}
+
+function generateCooldownHider() {
+	if (typeof JSZip === 'undefined') {
+		Blockbench.showMessageBox({ title: 'Firstperson Animation', message: 'JSZip is not available in this Blockbench build.' });
+		return;
+	}
+	const cfg = settings();
+	Blockbench.import({
+		resource_id: 'fpa_client_jar',
+		extensions: ['jar'],
+		type: 'Minecraft client jar',
+		readtype: 'buffer',
+	}, files => {
+		const file = files && files[0];
+		if (!file || !file.content) return;
+
+		JSZip.loadAsync(file.content).then(jar => {
+			const entry = jar.file('assets/minecraft/shaders/core/gui.fsh');
+			if (!entry) {
+				const names = Object.keys(jar.files).filter(n => /shaders\/core\/.*\.fsh$/.test(n));
+				throw new Error('assets/minecraft/shaders/core/gui.fsh is not in that file.' +
+					(names.length ? '\n\nCore shaders present:\n  ' + names.slice(0, 12).join('\n  ')
+						: '\n\nNo core shaders at all — is that really a client jar?'));
+			}
+			return entry.async('string');
+		}).then(src => {
+			const patched = patchGuiShader(src);
+			const zip = new JSZip();
+			zip.file('pack.mcmeta', JSON.stringify({
+				pack: {
+					description: 'Firstperson Animation - hides the vanilla hotbar cooldown overlay',
+					min_format: cfg.min_format | 0,
+					max_format: cfg.max_format | 0,
+				},
+			}, null, '\t'));
+			zip.file('assets/minecraft/shaders/core/gui.fsh', patched.source);
+			zip.file('README.txt', [
+				'Cooldown Hider',
+				'==============',
+				'',
+				'Discards the vanilla white hotbar cooldown overlay (ARGB 0x7FFFFFFF) in the',
+				'gui core shader, so the replacement bar in the item definition is the only',
+				'cooldown you see.',
+				'',
+				'Generated from : ' + (file.name || 'the client jar you picked'),
+				'Colour varying : ' + patched.varying,
+				'',
+				'Load this pack ABOVE your Firstperson Animation pack.',
+				'',
+				'Blast radius: this hides that overlay for EVERY item, ender pearls and food',
+				'included, not just yours.',
+				'',
+				'Core shaders are version specific. Regenerate this whenever you change',
+				'Minecraft version, or it will either fail to compile or silently stop',
+				'matching.',
+			].join('\n'));
+			return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+		}).then(blob => {
+			Blockbench.export({
+				type: 'Resource Pack', extensions: ['zip'],
+				name: 'cooldown_hider', content: blob, savetype: 'zip',
+			}, () => Blockbench.showQuickMessage('Cooldown hider pack written. Load it above your animation pack.', 4000));
+		}).catch(err => {
+			console.error(err);
+			Blockbench.showMessageBox({
+				title: 'Firstperson Animation — cooldown hider',
+				message: String((err && err.message) || err),
+			});
+		});
+	});
+}
+
+// ---------------------------------------------------------------------------
 // first-person viewport
 // ---------------------------------------------------------------------------
 //
@@ -1086,7 +1199,7 @@ function openSettings() {
 // registration
 // ---------------------------------------------------------------------------
 
-let format, actionExport, actionSettings, actionCamR, actionCamL, projectProperty;
+let format, actionExport, actionSettings, actionHider, actionCamR, actionCamL, projectProperty;
 
 const CAMERA_ACTION_IDS = ['fpa_cam_right', 'fpa_cam_left'];
 
@@ -1187,6 +1300,11 @@ Plugin.register(PLUGIN_ID, {
 			description: 'Bake every animation into a resource pack + a Skript example',
 			icon: 'pan_tool', condition: inFormat, click: exportPack,
 		});
+		actionHider = new Action('fpa_cooldown_hider', {
+			name: 'Generate Cooldown Hider Pack...',
+			description: 'Patches the vanilla gui.fsh out of your own client jar into a second pack that hides the hotbar cooldown overlay',
+			icon: 'blur_on', condition: inFormat, click: generateCooldownHider,
+		});
 		actionCamR = new Action('fpa_cam_right', {
 			name: 'First Person Camera (Right Hand)',
 			description: 'Aim the viewport at the player eye so you animate against the real framing',
@@ -1203,6 +1321,7 @@ Plugin.register(PLUGIN_ID, {
 		});
 		MenuBar.addAction(actionSettings, 'file.export');
 		MenuBar.addAction(actionExport, 'file.export');
+		MenuBar.addAction(actionHider, 'file.export');
 		MenuBar.addAction(actionCamR, 'view');
 		MenuBar.addAction(actionCamL, 'view');
 
@@ -1223,7 +1342,7 @@ Plugin.register(PLUGIN_ID, {
 
 	onunload() {
 		stripCameraButtons();
-		[actionExport, actionSettings, actionCamR, actionCamL, format, projectProperty].forEach(x => {
+		[actionExport, actionSettings, actionHider, actionCamR, actionCamL, format, projectProperty].forEach(x => {
 			if (x && typeof x.delete === 'function') x.delete();
 		});
 	},
