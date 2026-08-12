@@ -12,7 +12,9 @@ minecraft:custom_data     which animation — one string under one key
 a vanilla item cooldown   the playhead
 ```
 
-**No base-item requirement** — any item works. No datapack, no commands, no `use_cooldown` component. Nothing is written under `assets/minecraft`.
+**No base-item requirement** — any item works. No datapack, no commands. Nothing is written under `assets/minecraft`.
+
+One caveat worth knowing up front: cooldowns are keyed by **item type** unless the stack carries a `use_cooldown` component with a `group`. Without one, a stick-based weapon shares its cooldown — and therefore its animation — with every other stick on the server. The generated Skript sets a group of `<ns>:<item>`; the component is there for that alone, never to trigger anything.
 
 ```skript
 function fpa_pistol_fire(p: player):

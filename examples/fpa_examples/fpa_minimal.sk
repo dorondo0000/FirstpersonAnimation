@@ -2,7 +2,8 @@
 # Firstperson Animation — fpa:minimal
 #
 # needs: Skript 2.13+   (set item cooldown of ... for ...)
-#        SkBee  3.12+   (item model of ... / custom nbt of ...)
+#        SkBee  3.12+   (item model of ... / custom nbt of ... / use cooldown)
+#        Paper  1.21.3+ (the use_cooldown component)
 #
 # The pack does everything client side. The server only sets:
 #   1. minecraft:item_model   -> "fpa:minimal"
@@ -14,13 +15,24 @@
 options:
 	model: fpa:minimal
 	anim: fpa
+	group: fpa:minimal
 	base: stick   # cosmetic only — the item model replaces it
 
 # --- build ------------------------------------------------------------
+#
+# The use_cooldown component is here for its 'group' and nothing else.
+# Without a group the cooldown is keyed by the BASE ITEM TYPE, so every other
+# stick on the server would share this weapon's cooldown - and therefore its
+# animation. 'seconds' is required by the component but only ever fires if the
+# base item is actually usable; the play functions below set the cooldown
+# explicitly either way.
 
 function fpa_minimal_item() :: item:
 	set {_i} to {@base}
 	set item model of {_i} to "{@model}"
+	apply use cooldown to {_i}:
+		seconds: 6 ticks
+		group: "{@group}"
 	return {_i}
 
 function fpa_minimal_give(p: player):

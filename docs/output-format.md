@@ -137,9 +137,12 @@ Frame counts are `ticks + 1` because anything beyond that is a dead entry. The e
 ```
 minecraft:item_model    = "<ns>:<item>"
 minecraft:custom_data   = { "<anim key>": "<animation name>", "<bar key>": true }
+minecraft:use_cooldown  = { "cooldown_group": "<ns>:<item>", "seconds": … }
 ```
 
-plus a vanilla item cooldown, set by the server. That is the whole contract — no base item, no `use_cooldown`, no components to make a use action succeed.
+plus a vanilla item cooldown, set by the server. No base item is required and nothing has to make a use action succeed.
+
+`use_cooldown` is carried **for its group only**. `ItemCooldowns` keys a cooldown by `cooldown_group` when the stack has one and by the **item type** otherwise, so without a group every stick on the server would share this weapon's cooldown and play its animation. `seconds` is required by the component but only ever fires if the base item happens to be usable; the server sets the cooldown explicitly regardless.
 
 The `custom_data` checks are real `DataComponentPredicate`s, so they match **partially**: anything else the server keeps in `custom_data` is ignored, and omitting a key simply means "off".
 
