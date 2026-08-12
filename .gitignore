@@ -1,5 +1,10 @@
-# examples/ is deliberately committed: it is the reference pack you drop straight
-# into resourcepacks/, plus the .bbmodel sources the plugin opens.
+# Kept local, not shipped: the example packs and .bbmodel sources, the generator
+# that produces them, the long-form notes, and the debugging aids.
+examples/
+docs/
+tools/make_examples.mjs
+tools/diagnose.js
+tools/cooldown_discard.glsl
 
 node_modules/
 *.log

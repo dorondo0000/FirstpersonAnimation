@@ -1,20 +1,28 @@
 # Firstperson Animation
 
-**Author first-person item animations in Blockbench and bake them into a plain vanilla resource pack.** Built for servers.
+Blockbench plugin. Bakes a first-person item animation into a plain vanilla resource pack for Minecraft Java **26.1+**. No mod, no datapack.
 
-Minecraft 26.1 snapshot 11 added a `transformation` field to items model definitions, and `minecraft:range_dispatch` can read `minecraft:cooldown` (1.0 → 0.0). Put those together and **the vanilla item cooldown becomes the animation playhead**.
+`File > Plugins > Load Plugin from File` → `plugin/firstperson_animation.js`, then `File > New > Firstperson Animation`. One group is one bone. Set the first-person display transform, animate, and `File > Export > Export Firstperson Animation Pack`. `Shift + F` aims the viewport at the in-game framing. The exported zip holds the pack and a ready-to-use Skript file.
 
-## The server contract is three things
+## How it works
+
+26.1 snapshot 11 added a `transformation` field to items model definitions, and `minecraft:range_dispatch` can read `minecraft:cooldown`. So **the vanilla item cooldown is the playhead**.
+
+`minecraft:cooldown` returns the *remaining* cooldown, 1.0 → 0.0. Progress is `1 - cooldown`, so frame 0 is the moment of use and the last frame is what you see while idle — **author the last keyframe as the rest pose**. Playback length is simply the cooldown length, so one pack drives different items at different speeds.
+
+Geometry is written **once per bone** and moved by a per-frame `transformation`; nothing is duplicated per frame. Each bone also gets its own dispatch, so it costs only the number of distinct poses that bone actually takes rather than frames × bones — 121 → 55 nodes on the example rig.
+
+The server sets three things on the stack and nothing else:
 
 ```
-minecraft:item_model      which model definition to use
-minecraft:custom_data     which animation — one string under one key
-a vanilla item cooldown   the playhead
+minecraft:item_model    which model definition to use
+minecraft:custom_data   which animation — one string under one key
+minecraft:use_cooldown  carried for its cooldown_group only
 ```
 
-**No base-item requirement** — any item works. No datapack, no commands. Nothing is written under `assets/minecraft`.
+then starts a cooldown. Any item type works. Animations are switched by nested `minecraft:component` conditions on `custom_data`, which run a real `DataComponentPredicate` and therefore match **partially** — whatever else you keep in `custom_data` is ignored.
 
-One caveat worth knowing up front: cooldowns are keyed by **item type** unless the stack carries a `use_cooldown` component with a `group`. Without one, a stick-based weapon shares its cooldown — and therefore its animation — with every other stick on the server. The generated Skript sets a group of `<ns>:<item>`; the component is there for that alone, never to trigger anything.
+The `cooldown_group` is not optional in practice: `ItemCooldowns` keys a cooldown by group when the stack has one and by **item type** otherwise, so without it a stick-based weapon would share its cooldown, and its animation, with every other stick on the server.
 
 ```skript
 function fpa_pistol_fire(p: player):
@@ -24,113 +32,25 @@ function fpa_pistol_fire(p: player):
     set item cooldown of {_i} for {_p} to 8 ticks
 ```
 
-The export ships that Skript file alongside the pack — one function to give the weapon, one to toggle the cooldown display, one per animation to play it.
+## Cooldown bar
 
----
+**Most packs should leave this off.**
 
-## Layout
+Driving the animation from a cooldown has a visible side effect: vanilla sweeps its hotbar overlay every time the animation plays. If that reads fine, do nothing — vanilla's overlay is already correct and is *smoother than the replacement*, because it gets a real partial tick while `minecraft:cooldown` is quantised to ticks.
 
-```
-FirstpersonAnimation/
-├─ plugin/firstperson_animation.js   the Blockbench plugin (single file)
-├─ examples/
-│  ├─ fpa_examples/                  ready-made pack (+ .sk), drop it in resourcepacks/
-│  ├─ bbmodel/                       sources to open in Blockbench
-│  └─ cooldown_hider/                core-shader sub-pack — optional, separate pack
-├─ tools/
-│  ├─ make_examples.mjs              example generator = reference implementation
-│  ├─ make_cooldown_hider.ps1        patches gui.fsh out of your own client jar
-│  ├─ cooldown_discard.glsl          snippet for patching by hand
-│  └─ diagnose.js                    paste into Blockbench's DevTools console
-└─ docs/
-   ├─ output-format.md               every file the exporter writes
-   └─ clocks.md                      why cooldown, and the 20 fps ceiling
-```
+Turn it on only if you want the sweep gone on weapons but kept on items where the cooldown is genuine. Two pieces:
 
-## Usage
-
-1. `File > Plugins > Load Plugin from File` → `plugin/firstperson_animation.js`
-2. `File > New > Firstperson Animation`
-3. **One group = one bone = one model file.** Make a group per moving part and put its cubes inside
-4. In `Display` mode set up `First person right hand`. **Point the model down −Z** (muzzle at low z)
-5. `Shift + F` (or the timeline toolbar button) aims the viewport at the **in-game first-person framing**. Animate against that. `Shift + G` for the off hand
-6. Animate in `Animate` mode
-   - **the animation name is the string you put in `custom_data`**
-   - **make the last keyframe the rest pose** — with no cooldown running, the last frame is what you see
-7. `File > Export > Firstperson Animation Settings...` → namespace and item name
-8. `File > Export > Export Firstperson Animation Pack` → a zip holding the pack, `<ns>_<item>.sk`, and a README
-
-After updating the plugin, **restart Blockbench and reopen the project**. Reloading a plugin deletes the old `ModelFormat` object while an open project still points at it, and the animation UI stops responding.
-
----
-
-## How it works
-
-### The cooldown is the playhead
-
-`minecraft:cooldown` returns the **remaining** cooldown: 1.0 the instant it is applied, 0.0 when it expires.
-
-- progress is `1 - cooldown`, so frame 0 is the moment of use and **the last frame is the idle pose**
-- `range_dispatch` picks the last entry whose threshold is ≤ the value, so threshold `j/N` maps to frame `N-1-j`
-- **playback length = cooldown length.** The same pack runs at different speeds per item
-
-### 20 fps is the engine ceiling
-
-`Cooldown.get()` hands `getCooldownPercent` a partial tick of exactly **`0.0F`** — `fconst_0` in the bytecode of 26.1.2, 26.2 and 26.3 alike. The value is a **staircase** with `cooldown ticks + 1` steps, not a ramp.
-
-Three independent confirmations:
-
-1. **Bytecode**, three versions
-2. **In-game probe** — 180 entries over a 60-tick cooldown with a 3-pose cycle. Under quantisation only multiples of 3 are reachable, all mapping to the neutral pose, so the item must sit perfectly still. It did
-3. **Frame counting a 60 fps capture** — 26 of 90 frames changed (29% ≈ 1/3). Per-render-frame updates would be ~100%
-
-**To get more frames, lengthen the cooldown, not the entry list.** The exporter sizes the frame budget as `ticks + 1` automatically.
-
-Perceived choppiness is set by **change per step**, not by fps. 6°/step reads as smooth; 22°/step reads as steppy.
-
-### One dispatch per bone
-
-The naive shape is `range_dispatch → composite(every bone)`, costing **frames × bones**. Giving each bone its own dispatch costs only the number of distinct poses that bone actually takes.
-
-- consecutive identical frames collapse into one entry
-- a bone that never moves collapses to a plain `minecraft:model`
-- geometry is stored **once per bone**, never duplicated per frame
-
-Measured on the example pack: **121 → 55 nodes (55% saved)**.
-
-### Animation switching is nested `custom_data` conditions
-
-The `select` form of `minecraft:component` compares the whole compound, so it is unusable here. The **condition** form runs a `DataComponentPredicate`, which matches **partially** — the server can keep anything else it likes in `custom_data`.
-
-```json
-{ "type": "minecraft:condition", "property": "minecraft:component",
-  "predicate": "minecraft:custom_data",
-  "value": { "fpa": "fire" },
-  "on_true":  { "…fire…": "" },
-  "on_false": { "…next animation, ultimately the rest pose…": "" } }
-```
-
-`predicate` holds the **predicate type id as a string** and the match data lives in `value` (`ComponentMatches.MAP_CODEC = DataComponentPredicate.singleCodec("predicate")`). No key, or a name nothing matches, falls through to the rest pose.
-
-### Cooldown bar (optional, and probably not what you want)
-
-Read this part before enabling it — most packs should leave it off.
-
-Using the cooldown as an animation clock has a visible side effect: **vanilla draws its hotbar overlay every time the animation plays.** A gun that animates on every shot shows a cooldown sweep on every shot. If that reads fine to you, stop here — vanilla's overlay is already correct and is *smoother than anything this plugin can draw*, because it gets a real partial tick while `minecraft:cooldown` is quantised to ticks.
-
-The feature exists for the case where it does not read fine: you want the sweep gone for weapons, but still shown on the handful of items where the cooldown is a genuine cooldown. That takes two pieces.
-
-**1. Hide vanilla's overlay.** A core shader, which must sit at `assets/minecraft/shaders/core/gui.fsh` — the vanilla path, in the vanilla namespace. That is why it ships as a **separate pack** instead of inside the exported one:
+**1. Hide vanilla's.** A core shader, which has to sit at the vanilla path `assets/minecraft/shaders/core/gui.fsh` — which is why it is a **separate pack** and not part of the export:
 
 ```powershell
 .\tools\make_cooldown_hider.ps1 -Jar "…\minecraft-26.3-snapshot-5-client.jar"
 ```
 
-It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard for `0x7FFFFFFF`. No guessed shader is ever shipped: a core shader that fails to compile takes the whole GUI down with it, and shader sources change between versions, so regenerate it whenever you change Minecraft version.
+It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard for `0x7FFFFFFF`. No guessed shader is ever shipped: one that fails to compile takes the whole GUI down with it. Regenerate it whenever you change Minecraft version.
 
-Note the blast radius — this hides that overlay for **every** item, ender pearls and food included, not just yours.
+Blast radius: this hides the overlay for **every** item in the game, ender pearls and food included.
 
-**2. Put it back where you want it.** The exported pack carries a merged model that redraws the overlay in the GUI context, switched on by the `custom_data` key. It reproduces `GuiGraphicsExtractor` exactly:
+**2. Put it back selectively.** The exported pack carries a merged model that redraws the overlay in the GUI context, switched on by a `custom_data` key. It reproduces `GuiGraphicsExtractor` exactly — white at `0x7FFFFFFF`, bottom aligned, height `ceil(16f)` pixels:
 
 ```java
 if (f > 0.0F) {
@@ -140,33 +60,19 @@ if (f > 0.0F) {
 }
 ```
 
-White at alpha 127/255, bottom aligned, height `ceil(16f)` **pixels** — 17 possible looks and no others, which is why there is nothing to configure beyond on/off and the key. Partial alpha on item textures works fine. Checked against `ceil(16f)` on every reachable value of five cooldown durations: 221 values, 0 mismatches.
-
-The one thing it cannot match is smoothness: vanilla's overlay updates with a partial tick, this one steps at 20 Hz along with everything else on this clock.
-
----
-
-## Measured against the 26.3 client jar
-
-| Item | Result | Evidence |
-|---|---|---|
-| `transformation` pivot | **block corner (0,0,0), translation in blocks** | `black_shulker_box.json` matches `ShulkerBoxRenderer`'s PoseStack ops to four decimals |
-| `transformation` fields | **all four are mandatory** | omit one and the whole item fails with `No key right_rotation in MapLike[...]` |
-| `pack.mcmeta` | past format 64, `min_format`/`max_format` are **required** | without them nothing loads and every model is the missing texture |
-| 20 fps clock ceiling | **confirmed** | `fconst_0` across three versions + in-game probe + video frame counting |
-| Frame budget | **cooldown ticks + 1**, not the timeline | `getCooldownPercent`'s denominator is `endTime - startTime` |
-| `custom_data` condition | `predicate` (string) + `value`, **partial match** | `singleCodec("predicate")` = `dispatchMap`, `Single` uses `fieldOf("value")`; parses in game |
-| Partial alpha on item textures | **works** | in game. An inference from jar structure said otherwise and was wrong |
-| Off-hand mirroring | `translation.x` / `rotation.y` / `rotation.z` negated, frame x at −0.56 | `ItemTransform.apply` / `ItemInHandRenderer` |
-| Cooldown overlay | white `0x7FFFFFFF`, height `ceil(16f)` px | `GuiGraphicsExtractor` |
+That is 17 possible looks and no others, which is why there is nothing to configure beyond on/off and the key.
 
 ## Limits
 
-- **No interpolation.** Frames are baked. The whole `client/renderer/item` package contains zero `lerp`, and the property interface `get(ItemStack, ClientLevel, ItemOwner, int)` has no partial-tick parameter at all
+**20 poses per second is a hard ceiling.** `Cooldown.get()` hands `getCooldownPercent` a partial tick of exactly `0.0F` — `fconst_0` in the bytecode of 26.1.2, 26.2 and 26.3 alike — so the value is a staircase with `cooldown ticks + 1` steps, not a ramp. Confirmed three ways: bytecode across three versions, an in-game probe (180 entries over a 60-tick cooldown, only every third reachable, item sat perfectly still), and frame-counting a 60 fps capture (26 of 90 frames changed, ≈ 1/3).
+
+To get more frames, **lengthen the cooldown, not the entry list** — the exporter sizes the budget as `ticks + 1` automatically. Perceived choppiness is set by change per step, not by fps: 6°/step reads as smooth, 22°/step does not.
+
+- **No interpolation.** The whole `client/renderer/item` package contains zero `lerp`, and the property interface `get(ItemStack, ClientLevel, ItemOwner, int)` has no partial-tick parameter at all
 - **No shear.** Non-uniform scale on a rotated bone cannot be expressed; the exporter warns
-- **One cooldown per `cooldown_group`.** Two animations cannot run at once on the same group
-- **26.1+ only** — `transformation` does not exist before that
+- **One cooldown per `cooldown_group`** — two animations cannot overlap on the same group
+- **26.1+ only**, since `transformation` does not exist before it
 
 ## Related work
 
-[rieyi/display-anim-preview](https://github.com/rieyi/display-anim-preview) solves the same problem the other way: it bakes whole geometry per frame, routes on `custom_model_data`, and drives the index from a datapack tick loop. That buys arbitrary per-frame geometry and works before 26.1, at the cost of duplicated geometry, a −16..32 coordinate limit, and an `item modify` every tick per player. Both approaches hit the same 20 fps ceiling, for different reasons.
+[rieyi/display-anim-preview](https://github.com/rieyi/display-anim-preview) solves the same problem the other way: whole geometry baked per frame, routed on `custom_model_data`, index driven by a datapack tick loop. That buys arbitrary per-frame geometry and works before 26.1, at the cost of duplicated geometry, a −16..32 coordinate limit, and an `item modify` every tick per player. Both hit the same 20 fps ceiling, for different reasons.
