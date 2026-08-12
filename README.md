@@ -112,9 +112,25 @@ The `select` form of `minecraft:component` compares the whole compound, so it is
 
 `predicate` holds the **predicate type id as a string** and the match data lives in `value` (`ComponentMatches.MAP_CODEC = DataComponentPredicate.singleCodec("predicate")`). No key, or a name nothing matches, falls through to the rest pose.
 
-### Cooldown bar
+### Cooldown bar (optional, and probably not what you want)
 
-Reproduces the hotbar overlay as a merged model. Straight from `GuiGraphicsExtractor`:
+Read this part before enabling it — most packs should leave it off.
+
+Using the cooldown as an animation clock has a visible side effect: **vanilla draws its hotbar overlay every time the animation plays.** A gun that animates on every shot shows a cooldown sweep on every shot. If that reads fine to you, stop here — vanilla's overlay is already correct and is *smoother than anything this plugin can draw*, because it gets a real partial tick while `minecraft:cooldown` is quantised to ticks.
+
+The feature exists for the case where it does not read fine: you want the sweep gone for weapons, but still shown on the handful of items where the cooldown is a genuine cooldown. That takes two pieces.
+
+**1. Hide vanilla's overlay.** A core shader, which must sit at `assets/minecraft/shaders/core/gui.fsh` — the vanilla path, in the vanilla namespace. That is why it ships as a **separate pack** instead of inside the exported one:
+
+```powershell
+.\tools\make_cooldown_hider.ps1 -Jar "…\minecraft-26.3-snapshot-5-client.jar"
+```
+
+It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard for `0x7FFFFFFF`. No guessed shader is ever shipped: a core shader that fails to compile takes the whole GUI down with it, and shader sources change between versions, so regenerate it whenever you change Minecraft version.
+
+Note the blast radius — this hides that overlay for **every** item, ender pearls and food included, not just yours.
+
+**2. Put it back where you want it.** The exported pack carries a merged model that redraws the overlay in the GUI context, switched on by the `custom_data` key. It reproduces `GuiGraphicsExtractor` exactly:
 
 ```java
 if (f > 0.0F) {
@@ -124,15 +140,9 @@ if (f > 0.0F) {
 }
 ```
 
-White at alpha 127/255, bottom aligned, height `ceil(16f)` **pixels** — 17 possible looks and no others, which is why there is nothing to configure beyond on/off and the `custom_data` key. Partial alpha on item textures works fine. Verified against `ceil(16f)` on every reachable value of five cooldown durations: 221 checked, 0 mismatches.
+White at alpha 127/255, bottom aligned, height `ceil(16f)` **pixels** — 17 possible looks and no others, which is why there is nothing to configure beyond on/off and the key. Partial alpha on item textures works fine. Checked against `ceil(16f)` on every reachable value of five cooldown durations: 221 values, 0 mismatches.
 
-Vanilla still draws its own overlay on top. Removing that needs a **separate** pack, because it has to live under `assets/minecraft`:
-
-```powershell
-.\tools\make_cooldown_hider.ps1 -Jar "…\minecraft-26.3-snapshot-5-client.jar"
-```
-
-It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard for `0x7FFFFFFF`. No guessed shader is ever shipped — a core shader that fails to compile takes the whole GUI with it.
+The one thing it cannot match is smoothness: vanilla's overlay updates with a partial tick, this one steps at 20 Hz along with everything else on this clock.
 
 ---
 
