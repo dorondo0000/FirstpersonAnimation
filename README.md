@@ -150,8 +150,6 @@ It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard 
 | Off-hand mirroring | `translation.x` / `rotation.y` / `rotation.z` negated, frame x at −0.56 | `ItemTransform.apply` / `ItemInHandRenderer` |
 | Cooldown overlay | white `0x7FFFFFFF`, height `ceil(16f)` px | `GuiGraphicsExtractor` |
 
-**Not yet verified:** the Blockbench plugin has never been run end to end here — a full export round trip (export a pack from the plugin, load it, confirm it matches the reference pack) is still outstanding.
-
 ## Limits
 
 - **No interpolation.** Frames are baked. The whole `client/renderer/item` package contains zero `lerp`, and the property interface `get(ItemStack, ClientLevel, ItemOwner, int)` has no partial-tick parameter at all
