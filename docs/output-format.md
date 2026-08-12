@@ -1,136 +1,146 @@
-# 출력 포맷
+# Output format
 
-플러그인과 `tools/make_examples.mjs`가 만들어내는 리소스팩 구조 전체.
+Everything the exporter writes, and why it is shaped that way. `tools/make_examples.mjs` is a readable reference implementation of the same thing.
 
-## 파일 배치
+## Files
 
 ```
 pack.mcmeta
-assets/<ns>/items/<item>.json                          ← item model definition (진입점)
-assets/<ns>/models/item/<item>/parts/<bone>.json       ← 본마다 하나. 지오메트리는 여기 한 번만
-assets/<ns>/models/item/<item>/cooldown_bar.json       ← 대체 쿨다운 바 (옵션)
+assets/<ns>/items/<item>.json                          item model definition (entry point)
+assets/<ns>/models/item/<item>/parts/<bone>.json       one per bone; geometry lives here once
+assets/<ns>/models/item/<item>/cooldown_bar.json       optional
 assets/<ns>/textures/item/<item>/<texture>.png
-assets/<ns>/textures/item/<item>/_cooldown_overlay.png ← 옵션
-GIVE_COMMANDS.txt                                       ← 리소스팩에 무해한 부속 파일
+assets/<ns>/textures/item/<item>/_cooldown_overlay.png optional
+<ns>_<item>.sk                                         Skript example (harmless inside a pack)
 README.txt
 ```
 
-`parts/*.json`은 전부 **동일한 `display` 섹션**을 갖습니다. composite의 각 레이어가 자기 모델 파일의 `display`를 쓰기 때문에, 하나라도 다르면 부위가 어긋납니다.
+Nothing lands under `assets/minecraft`. The core-shader sub-pack that hides the vanilla cooldown overlay is a separate pack for exactly that reason.
 
-## 전체 트리
+Every `parts/*.json` carries the **same `display` section**. Each layer of a composite uses the display transform from its own model file, so if they differ the bones drift apart.
+
+## The tree
 
 ```
 items/<item>.json
+├─ hand_animation_on_swap: false
+├─ swap_animation_scale: 0          the model identity changes every tick; without
+│                                   this vanilla plays its equip bob on each change
 └─ model: select  property=minecraft:display_context
    ├─ case ["firstperson_righthand","firstperson_lefthand"]
-   │  └─ select  property=minecraft:custom_model_data  (index=0, strings)
-   │     ├─ case "fire"   → composite
-   │     │                   ├─ model  parts/<안 움직이는 본>       (transformation 상수 또는 없음)
-   │     │                   └─ range_dispatch  property=minecraft:cooldown
-   │     │                      ├─ threshold 0        → composite[프레임 N-1]  ← 대기 포즈
-   │     │                      ├─ threshold 1/N      → composite[프레임 N-2]
-   │     │                      ├─ ...
-   │     │                      ├─ threshold (N-1)/N  → composite[프레임 0]
-   │     │                      └─ fallback           → composite[프레임 N-1]
-   │     ├─ case "reload" → (동일 구조)
-   │     └─ fallback      → 첫 애니메이션 또는 설정한 기본 애니메이션
-   ├─ case ["gui"]
+   │  └─ condition  property=minecraft:component
+   │     │          predicate=minecraft:custom_data  value={<key>: "fire"}
+   │     ├─ on_true  → composite
+   │     │              ├─ model  parts/<bone that never moves>
+   │     │              └─ range_dispatch  property=minecraft:cooldown   (per bone)
+   │     │                 ├─ threshold 0        → rest pose
+   │     │                 ├─ threshold 1/N      → frame N-2
+   │     │                 ├─ …
+   │     │                 └─ fallback           → rest pose
+   │     └─ on_false → condition for the next animation … ultimately the rest pose
+   ├─ case ["gui"]                  only when the cooldown bar is enabled
    │  └─ composite
-   │     ├─ 정지 포즈
-   │     └─ condition  property=minecraft:custom_model_data  (index=0, flags)
-   │        ├─ on_true  → range_dispatch  property=minecraft:cooldown  (바 높이 스케일)
+   │     ├─ rest pose
+   │     └─ condition  property=minecraft:component (custom_data <bar key>)
+   │        ├─ on_true  → range_dispatch  property=minecraft:cooldown  (bar height)
    │        └─ on_false → empty
-   └─ fallback → 정지 포즈 (ground / fixed / thirdperson / head ...)
+   └─ fallback → rest pose (ground / fixed / thirdperson / head …)
 ```
 
-## 프레임 클럭
+## The frame clock
 
-`minecraft:cooldown`은 **남은** 쿨다운을 0.0~1.0으로 돌려줍니다. 걸린 순간 1.0, 만료 시 0.0, 쿨다운이 없으면 0.0.
-
-```
-진행도  = 1 - cooldown
-프레임  = round(진행도 × (N-1))
-```
-
-`range_dispatch`는 "threshold ≤ 값"인 마지막 entry를 고르므로, `j = 0..N-1`에 대해
+`minecraft:cooldown` returns the **remaining** cooldown, 0.0–1.0: 1.0 when applied, 0.0 when it expires, 0.0 when there is none.
 
 ```
-threshold j/N   →   프레임 (N-1-j)
+progress = 1 - cooldown
+frame    = round(progress × (N-1))
 ```
 
-를 내보냅니다. 결과:
+`range_dispatch` picks the last entry whose threshold is ≤ the value, so for `j = 0..N-1` the exporter writes
 
-| cooldown | 고르는 entry | 프레임 |
+```
+threshold j/N   →   frame (N-1-j)
+```
+
+| cooldown | entry picked | frame |
 |---|---|---|
-| 1.0 (막 사용) | `(N-1)/N` | 0 |
-| 0.5 | `⌊N/2⌋/N` | 약 N/2 |
-| 0.0 (평상시) | `0` | N-1 |
+| 1.0 (just used) | `(N-1)/N` | 0 |
+| 0.5 | `⌊N/2⌋/N` | about N/2 |
+| 0.0 (idle) | `0` | N-1 |
 
-**그래서 마지막 키프레임이 대기 포즈여야 합니다.** 플러그인 설정의 `Reverse playback direction`으로 방향을 뒤집을 수 있습니다.
+**That is why the last keyframe must be the rest pose.**
 
-## transformation 계산
+### How many frames are worth baking
 
-Blockbench 씬 공간과 Minecraft 모델 공간은 상수 평행이동만큼 차이납니다. 플러그인은 그 오프셋 `o`를 **루트 본에서 실측**합니다 — 영(zero) 포즈에서 루트 본의 월드 위치가 곧 그 본의 pivot이기 때문입니다. (루트 본이 2개 이상이면 서로 교차검증하고, 어긋나면 경고합니다.)
+Every clock resolves to an integer tick counter — checked in bytecode, not assumed:
 
 ```
-zeroPose(b)  = 모든 그룹 회전·스케일·애니메이션을 0으로 만든 본 b의 월드 행렬
+Cooldown.get()    -> fconst_0 ; ItemCooldowns.getCooldownPercent(stack, 0.0F)
+UseDuration.get() -> LivingEntity.getUseItemRemainingTicks():I ; i2f
+```
+
+So a D-tick playback only ever takes **D+1 distinct values**, and a dispatch with more entries than that contains entries the client can never select. The exporter sizes the budget as `ticks + 1` and warns when `Max frames` clips it.
+
+The budget follows the **cooldown**, not the Blockbench timeline: `getCooldownPercent`'s denominator is `endTime - startTime`. Author a 1-second animation, hand out a 2-second cooldown, and you get 41 steps at half speed. Set `Playback ticks` when the two differ.
+
+## Computing the transformation
+
+Blockbench's scene and Minecraft model space differ by a constant translation. The exporter **measures** it instead of guessing: at the zero pose a root group's world position is its own pivot, in scene coordinates. With two or more root groups they cross-check each other, and a mismatch is reported.
+
+```
+zeroPose(b)  = bone b's world matrix with every group rotation, scale and animation zeroed
 Δ_scene(b,t) = pose(b,t) · zeroPose(b)⁻¹
 Δ_model      = T(o) · Δ_scene · T(-o)
-             → 3×3 부분은 그대로, 평행이동만  t_model = t_scene + (I - A)·o
+             → same 3×3, translation becomes t_model = t_scene + (I - A)·o
 ```
 
-그룹의 rest 회전도 여기서 자동으로 프레임 transformation에 흡수됩니다. 평범한 Java 모델은 회전된 본을 표현할 수 없으니 이게 맞는 동작입니다.
+A group's rest rotation is absorbed into every frame's transformation by this, which is correct: a plain java model cannot express a rotated bone.
 
-모델 공간 어파인 `v' = A·v + t_model` 을 Minecraft `transformation`으로:
+Model-space affine `v' = A·v + t_model` becomes a Minecraft `transformation` with
 
 ```
-t_mc = (A·pivot + t_model - pivot) / 16
+t = (A·pivot + t_model - pivot) / 16
 ```
 
-`pivot`은 `corner`면 (0,0,0), `center`면 (8,8,8). 16으로 나누는 건 모델 단위(1/16 블록) → 블록 단위 변환입니다. **26.3 실측 결과 `corner` + 블록 단위가 맞습니다** ([calibration.md](calibration.md)).
+`pivot` is the block corner `(0,0,0)` and the division converts model units (1/16 block) to blocks. **Confirmed against vanilla**: `black_shulker_box.json` carries exactly the PoseStack operations `ShulkerBoxRenderer` performs, to four decimals.
 
-출력은 항상 분해 형식(decomposed)입니다. 바닐라 아이템 정의 68개도 전부 이 형식만 씁니다 — 16-float 행렬 형식은 row/column-major가 문서화돼 있지 않아 쓰지 않습니다.
+Output is always the decomposed form — all 68 vanilla item definitions that use `transformation` use it too, and the 16-float matrix form has no documented row/column-major convention.
 
 ```json
 "transformation": {
-  "translation":   [x, y, z],
-  "left_rotation": [qx, qy, qz, qw],
-  "scale":         [sx, sy, sz],
+  "translation":    [x, y, z],
+  "left_rotation":  [qx, qy, qz, qw],
+  "scale":          [sx, sy, sz],
   "right_rotation": [0, 0, 0, 1]
 }
 ```
 
-> ⚠️ **네 필드가 전부 필수입니다.** 항등인 필드를 생략하면 클라이언트가 통째로 거부합니다:
+> ⚠️ **All four keys are mandatory.** Omit an identity one and the client rejects the entire item:
 > ```
-> Couldn't parse item model 'fpa:minimal': No key right_rotation in MapLike[{...}]
+> Couldn't parse item model 'fpa:minimal': No key right_rotation in MapLike[{…}]
 > ```
-> 바닐라 아이템 정의들이 `left_rotation:[0,0,0,1]` 같은 항등값까지 다 적어놓은 게 스타일이 아니라 강제입니다. (26.3-snapshot-5에서 실측)
+> Vanilla spelling out `left_rotation:[0,0,0,1]` everywhere is a requirement, not a style. (Measured on 26.3-snapshot-5.)
 
-`transformation` **필드 자체**는 optional이라, 전체가 항등이면 필드를 통째로 생략합니다. `right_rotation`은 항상 항등으로 내보냅니다 — shear가 없으면 필요 없고, shear는 어차피 표현 불가라 감지 시 경고만 냅니다.
+The `transformation` **field itself** is optional, so it is dropped entirely when the whole thing is the identity. `right_rotation` always ships as the identity: it is only needed for shear, and shear cannot be represented anyway — the exporter warns when a bone produces one.
 
-## 크기
+## Size
 
-프레임당 (움직이는 본 개수)개의 `minecraft:model` 노드가 생깁니다.
+Cost is the number of distinct poses each bone takes, not frames × bones.
 
-```
-노드 수 ≈ 애니메이션마다 (프레임 수 × 움직이는 본 수)
-```
+Frame counts are `ticks + 1` because anything beyond that is a dead entry. The example `pistol` — fire 9 frames + reload 29 frames over 3 bones — comes to 55 nodes where the naive shape would be 121. Two mechanisms do that work:
 
-프레임 수는 **틱 수 + 1**로 자동 결정됩니다 — 그 이상은 클라이언트가 선택할 수 없는 죽은 entry이기 때문입니다 ([clocks.md](clocks.md) 참고). 예제 `pistol`: fire 9프레임 + reload 29프레임, 본 3개 → 약 68노드, 들여쓰기 포함 30KB대. 20fps × 2초 × 본 6개면 240노드 정도이니 긴 애니메이션은 `Max frames`로 자르는 게 좋습니다.
+- geometry is written **once per bone**, never duplicated per frame
+- a bone that holds still collapses those frames into a single entry, and one that never moves collapses to a plain model reference with no dispatch
 
-절약 장치 두 개가 이미 들어있습니다.
-
-- 지오메트리는 본마다 **한 번만** 저장 (프레임마다 복제하지 않음)
-- 해당 애니메이션에서 **한 번도 안 움직이는 본**은 dispatch 바깥에 한 번만 등장
-
-## 아이템 쪽 컴포넌트
+## Item components
 
 ```
-minecraft:item_model      = "<ns>:<item>"       ← 이 정의 파일을 가리킴
-minecraft:use_cooldown    = {seconds: <애니메이션 길이>, cooldown_group: "<ns>:<item>"}
-minecraft:custom_model_data = {strings: ["<애니메이션 이름>"], flags: [<쿨다운 바 표시 여부>]}
+minecraft:item_model    = "<ns>:<item>"
+minecraft:custom_data   = { "<anim key>": "<animation name>", "<bar key>": true }
 ```
 
-`seconds`가 애니메이션 길이와 다르면 재생 속도가 그만큼 달라집니다 — 이건 버그가 아니라 **기능**입니다. 같은 팩으로 슬로모션/배속을 만들 수 있습니다.
+plus a vanilla item cooldown, set by the server. That is the whole contract — no base item, no `use_cooldown`, no components to make a use action succeed.
 
-쿨다운을 거는 건 "아이템 사용이 성공"할 때입니다. 예제는 goat horn을 base로 씁니다(우클릭 항상 성공, 소모 안 됨, `instrument`를 무음으로 덮어씀). 서버 플러그인이 있다면 `player.setCooldown(...)`으로 원하는 시점에 재생을 트리거하면 됩니다.
+The `custom_data` checks are real `DataComponentPredicate`s, so they match **partially**: anything else the server keeps in `custom_data` is ignored, and omitting a key simply means "off".
+
+Cooldown length sets playback speed. Handing out a different length than the authored one is a **feature**, not a bug — it is how one pack gives several items different speeds.

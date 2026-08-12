@@ -1,18 +1,18 @@
 # Firstperson Animation
 
-**Blockbench에서 1인칭 아이템 애니메이션을 만들어 순수 리소스팩으로 굽는 툴.** 서버에서 쓰는 걸 전제로 합니다.
+**Author first-person item animations in Blockbench and bake them into a plain vanilla resource pack.** Built for servers.
 
-26.1 snapshot 11에서 item model definition에 `transformation`이 추가됐고, `minecraft:range_dispatch`가 `minecraft:cooldown`(1.0→0.0)을 읽습니다. 이 둘을 합치면 **바닐라 아이템 쿨다운이 그대로 애니메이션 재생 헤드**가 됩니다.
+Minecraft 26.1 snapshot 11 added a `transformation` field to items model definitions, and `minecraft:range_dispatch` can read `minecraft:cooldown` (1.0 → 0.0). Put those together and **the vanilla item cooldown becomes the animation playhead**.
 
-## 서버가 하는 일은 3개뿐
+## The server contract is three things
 
 ```
-minecraft:item_model      →  어느 모델 정의를 쓸지
-minecraft:custom_data     →  어느 애니메이션인지 (키 하나에 문자열)
-바닐라 아이템 쿨다운       →  재생 헤드
+minecraft:item_model      which model definition to use
+minecraft:custom_data     which animation — one string under one key
+a vanilla item cooldown   the playhead
 ```
 
-**base item 제약 없음** — 아무 아이템이나 됩니다. 데이터팩 없음, 커맨드 없음, `use_cooldown` 컴포넌트도 불필요. `assets/minecraft`에 아무것도 안 씁니다.
+**No base-item requirement** — any item works. No datapack, no commands, no `use_cooldown` component. Nothing is written under `assets/minecraft`.
 
 ```skript
 function fpa_pistol_fire(p: player):
@@ -22,122 +22,141 @@ function fpa_pistol_fire(p: player):
     set item cooldown of {_i} for {_p} to 8 ticks
 ```
 
-export하면 이 Skript 파일이 팩에 같이 들어갑니다 (지급 / 쿨다운표시 온오프 / 애니메이션 재생 함수).
+The export ships that Skript file alongside the pack — one function to give the weapon, one to toggle the cooldown display, one per animation to play it.
 
 ---
 
-## 구조
+## Layout
 
 ```
 FirstpersonAnimation/
-├─ plugin/firstperson_animation.js   Blockbench 플러그인 (단일 파일)
+├─ plugin/firstperson_animation.js   the Blockbench plugin (single file)
 ├─ examples/
-│  ├─ fpa_examples/                  완성 예제 팩 (+ .sk)
-│  ├─ bbmodel/                       예제 소스 (Blockbench에서 열기)
-│  └─ cooldown_hider/                코어셰이더 서브팩 — 선택, 별도 팩
+│  ├─ fpa_examples/                  ready-made pack (+ .sk), drop it in resourcepacks/
+│  ├─ bbmodel/                       sources to open in Blockbench
+│  └─ cooldown_hider/                core-shader sub-pack — optional, separate pack
 ├─ tools/
-│  ├─ make_examples.mjs              예제 생성기 = 출력 포맷 레퍼런스
-│  ├─ make_cooldown_hider.ps1        내 클라 jar에서 gui.fsh 패치
-│  └─ cooldown_discard.glsl          수동 패치용 스니펫
+│  ├─ make_examples.mjs              example generator = reference implementation
+│  ├─ make_cooldown_hider.ps1        patches gui.fsh out of your own client jar
+│  ├─ cooldown_discard.glsl          snippet for patching by hand
+│  └─ diagnose.js                    paste into Blockbench's DevTools console
 └─ docs/
-   ├─ output-format.md               생성되는 JSON 구조
-   └─ clocks.md                      왜 cooldown인지 + 20fps 천장 근거
+   ├─ output-format.md               every file the exporter writes
+   └─ clocks.md                      why cooldown, and the 20 fps ceiling
 ```
 
-## 사용법
+## Usage
 
 1. `File > Plugins > Load Plugin from File` → `plugin/firstperson_animation.js`
 2. `File > New > Firstperson Animation`
-3. **그룹 = 본 = 모델 파일 하나.** 움직일 단위마다 그룹을 만들고 큐브를 넣습니다
-4. `Display` 모드에서 `First person right hand`를 잡습니다. **모델은 -Z를 향하게** (총구가 낮은 z)
-5. `View > First Person Camera (Right Hand)` → 뷰포트가 **인게임 1인칭 프레이밍**으로 이동. 이 상태로 애니메이션 작성
-6. `Animate` 모드에서 작성
-   - **애니메이션 이름 = `custom_data`에 넣을 문자열**
-   - **마지막 키프레임 = 대기 포즈** (쿨다운이 0일 때 보이는 게 마지막 프레임)
-7. `File > Export > Firstperson Animation Settings...` → 네임스페이스/아이템 이름
-8. `File > Export > Export Firstperson Animation Pack` → zip (팩 + `<ns>_<item>.sk` + README)
+3. **One group = one bone = one model file.** Make a group per moving part and put its cubes inside
+4. In `Display` mode set up `First person right hand`. **Point the model down −Z** (muzzle at low z)
+5. `Shift + F` (or the timeline toolbar button) aims the viewport at the **in-game first-person framing**. Animate against that. `Shift + G` for the off hand
+6. Animate in `Animate` mode
+   - **the animation name is the string you put in `custom_data`**
+   - **make the last keyframe the rest pose** — with no cooldown running, the last frame is what you see
+7. `File > Export > Firstperson Animation Settings...` → namespace and item name
+8. `File > Export > Export Firstperson Animation Pack` → a zip holding the pack, `<ns>_<item>.sk`, and a README
+
+After updating the plugin, **restart Blockbench and reopen the project**. Reloading a plugin deletes the old `ModelFormat` object while an open project still points at it, and the animation UI stops responding.
 
 ---
 
-## 핵심 설계
+## How it works
 
-### 클럭은 `cooldown` 하나
+### The cooldown is the playhead
 
-`minecraft:cooldown`은 **남은 쿨다운**을 돌려줍니다. 걸린 순간 1.0, 끝나면 0.0.
+`minecraft:cooldown` returns the **remaining** cooldown: 1.0 the instant it is applied, 0.0 when it expires.
 
-- 진행도 = `1 - cooldown` → 프레임 0이 발동 순간, **마지막 프레임이 평상시**
-- `range_dispatch`는 "값 이하인 마지막 entry"를 고르므로 threshold `j/N` → 프레임 `N-1-j`
-- **재생 길이 = 쿨다운 길이.** 같은 팩으로 아이템마다 속도가 달라집니다
+- progress is `1 - cooldown`, so frame 0 is the moment of use and **the last frame is the idle pose**
+- `range_dispatch` picks the last entry whose threshold is ≤ the value, so threshold `j/N` maps to frame `N-1-j`
+- **playback length = cooldown length.** The same pack runs at different speeds per item
 
-### 20fps가 엔진 천장 (검증됨)
+### 20 fps is the engine ceiling
 
-`Cooldown.get()`이 `getCooldownPercent`에 partialTick으로 **`0.0F`를 넘깁니다** — 26.1.2 / 26.2 / 26.3 전부 `fconst_0`. 값은 램프가 아니라 **계단**이고 단수는 `쿨다운 틱 + 1`입니다.
+`Cooldown.get()` hands `getCooldownPercent` a partial tick of exactly **`0.0F`** — `fconst_0` in the bytecode of 26.1.2, 26.2 and 26.3 alike. The value is a **staircase** with `cooldown ticks + 1` steps, not a ramp.
 
-세 가지가 일치합니다:
-1. 바이트코드 (3개 버전)
-2. 인게임 프로브 (60틱에 entry 180개, 3의 배수만 도달 → 완전 정지 확인)
-3. 60fps 영상 프레임 측정 (90프레임 중 26프레임만 변화 = 29% ≈ 1/3)
+Three independent confirmations:
 
-**프레임을 늘리려면 entry가 아니라 쿨다운을 늘려야 합니다.** 툴이 `틱+1`로 자동 계산합니다.
+1. **Bytecode**, three versions
+2. **In-game probe** — 180 entries over a 60-tick cooldown with a 3-pose cycle. Under quantisation only multiples of 3 are reachable, all mapping to the neutral pose, so the item must sit perfectly still. It did
+3. **Frame counting a 60 fps capture** — 26 of 90 frames changed (29% ≈ 1/3). Per-render-frame updates would be ~100%
 
-체감 끊김은 fps가 아니라 **스텝당 변화량**이 정합니다. 6°/스텝은 부드럽고, 22°/스텝은 튑니다.
+**To get more frames, lengthen the cooldown, not the entry list.** The exporter sizes the frame budget as `ticks + 1` automatically.
 
-### 본마다 dispatch 하나
+Perceived choppiness is set by **change per step**, not by fps. 6°/step reads as smooth; 22°/step reads as steppy.
 
-순진한 구조는 `range_dispatch → composite(전체 본)` = **프레임 × 본**. 본마다 자기 dispatch를 주면 그 본이 실제로 취하는 포즈 수만큼으로 줄어듭니다.
+### One dispatch per bone
 
-- 연속 동일 프레임 → entry 1개
-- 안 움직이는 본 → dispatch 없이 `minecraft:model` 1개
-- 지오메트리는 본마다 파일 하나에 한 번만
+The naive shape is `range_dispatch → composite(every bone)`, costing **frames × bones**. Giving each bone its own dispatch costs only the number of distinct poses that bone actually takes.
 
-예제 실측: **121 → 55 노드 (55% 감소)**
+- consecutive identical frames collapse into one entry
+- a bone that never moves collapses to a plain `minecraft:model`
+- geometry is stored **once per bone**, never duplicated per frame
 
-### 애니메이션 분기 = `custom_data` 중첩 condition
+Measured on the example pack: **121 → 55 nodes (55% saved)**.
 
-`select`의 `minecraft:component`는 컴파운드 **완전일치**라 못 씁니다. 반면 `condition`의 `minecraft:component`는 `DataComponentPredicate` 기반이라 **부분 매칭**입니다 — 서버가 `custom_data`에 뭘 더 넣든 상관없습니다.
+### Animation switching is nested `custom_data` conditions
+
+The `select` form of `minecraft:component` compares the whole compound, so it is unusable here. The **condition** form runs a `DataComponentPredicate`, which matches **partially** — the server can keep anything else it likes in `custom_data`.
 
 ```json
 { "type": "minecraft:condition", "property": "minecraft:component",
   "predicate": "minecraft:custom_data",
   "value": { "fpa": "fire" },
-  "on_true":  { "...fire...": "" },
-  "on_false": { "...다음 애니메이션, 최종적으로 대기 포즈...": "" } }
+  "on_true":  { "…fire…": "" },
+  "on_false": { "…next animation, ultimately the rest pose…": "" } }
 ```
 
-`predicate`는 **타입 id 문자열**, 값은 `value`에 들어갑니다 (`ComponentMatches.MAP_CODEC = DataComponentPredicate.singleCodec("predicate")`). 키가 없거나 매칭 안 되면 대기 포즈입니다.
+`predicate` holds the **predicate type id as a string** and the match data lives in `value` (`ComponentMatches.MAP_CODEC = DataComponentPredicate.singleCodec("predicate")`). No key, or a name nothing matches, falls through to the rest pose.
 
-### 쿨다운 바 (선택)
+### Cooldown bar
 
-핫바 오버레이를 모델로 재현합니다. 흰색 알파 127/255 — 바닐라와 같은 색이고, **아이템 텍스처의 부분 알파는 정상 동작합니다**. `custom_data`의 `fpa_bar` 키로 켜집니다.
+Reproduces the hotbar overlay as a merged model. Straight from `GuiGraphicsExtractor`:
 
-바닐라 흰 오버레이는 그 위에 계속 그려집니다. 없애려면 **별도 팩**이 필요합니다 (`assets/minecraft`에 있어야 해서 본 팩에 못 넣습니다):
+```java
+if (f > 0.0F) {
+    int top    = y + Mth.floor(16.0F * (1.0F - f));
+    int bottom = top + Mth.ceil(16.0F * f);
+    fill(RenderPipelines.GUI, x, top, x + 16, bottom, 0x7FFFFFFF);
+}
+```
+
+White at alpha 127/255, bottom aligned, height `ceil(16f)` **pixels** — 17 possible looks and no others, which is why there is nothing to configure beyond on/off and the `custom_data` key. Partial alpha on item textures works fine. Verified against `ceil(16f)` on every reachable value of five cooldown durations: 221 checked, 0 mismatches.
+
+Vanilla still draws its own overlay on top. Removing that needs a **separate** pack, because it has to live under `assets/minecraft`:
 
 ```powershell
-.\tools\make_cooldown_hider.ps1 -Jar "...\minecraft-26.3-snapshot-5-client.jar"
+.\tools\make_cooldown_hider.ps1 -Jar "…\minecraft-26.3-snapshot-5-client.jar"
 ```
 
-내 클라의 vanilla `gui.fsh`를 꺼내 `0x7FFFFFFF` discard를 넣습니다. 추측한 셰이더를 배포하지 않습니다.
+It pulls the vanilla `gui.fsh` out of your own client jar and inserts a discard for `0x7FFFFFFF`. No guessed shader is ever shipped — a core shader that fails to compile takes the whole GUI with it.
 
 ---
 
-## 26.3 클라 jar에서 실측한 것
+## Measured against the 26.3 client jar
 
-| 항목 | 결과 | 근거 |
+| Item | Result | Evidence |
 |---|---|---|
-| `transformation` 피벗 | **블록 코너 (0,0,0), 단위=블록** | `black_shulker_box.json`이 `ShulkerBoxRenderer`의 PoseStack 연산과 소수점까지 일치 |
-| transformation 필드 | **네 개 전부 필수** | 하나라도 빠지면 `No key right_rotation in MapLike[...]`로 아이템 전체 파싱 실패 |
-| `pack.mcmeta` | format 64 초과면 `min_format`/`max_format` **필수** | 없으면 팩 전체 로드 실패 → 전부 미싱 텍스처 |
-| 클럭 20fps 천장 | **확정** | `fconst_0` (3개 버전) + 인게임 프로브 + 영상 프레임 측정 |
-| 프레임 예산 | 타임라인이 아니라 **쿨다운 틱 + 1** | `getCooldownPercent` 분모가 `endTime - startTime` |
-| `custom_data` condition | `predicate`(문자열) + `value`, **부분 매칭** | `singleCodec("predicate")` = `dispatchMap`, `Single`은 `fieldOf("value")`. 인게임 파싱 확인 |
-| 아이템 텍스처 부분 알파 | **가능** | 인게임 실측 (jar 구조만 보고 "불가"로 추론했다가 틀렸음) |
-| 왼손 미러링 | `translation.x` / `rotation.y` / `rotation.z` 자동 반전 + 프레임 x −0.56 | `ItemTransform.apply` / `ItemInHandRenderer` |
+| `transformation` pivot | **block corner (0,0,0), translation in blocks** | `black_shulker_box.json` matches `ShulkerBoxRenderer`'s PoseStack ops to four decimals |
+| `transformation` fields | **all four are mandatory** | omit one and the whole item fails with `No key right_rotation in MapLike[...]` |
+| `pack.mcmeta` | past format 64, `min_format`/`max_format` are **required** | without them nothing loads and every model is the missing texture |
+| 20 fps clock ceiling | **confirmed** | `fconst_0` across three versions + in-game probe + video frame counting |
+| Frame budget | **cooldown ticks + 1**, not the timeline | `getCooldownPercent`'s denominator is `endTime - startTime` |
+| `custom_data` condition | `predicate` (string) + `value`, **partial match** | `singleCodec("predicate")` = `dispatchMap`, `Single` uses `fieldOf("value")`; parses in game |
+| Partial alpha on item textures | **works** | in game. An inference from jar structure said otherwise and was wrong |
+| Off-hand mirroring | `translation.x` / `rotation.y` / `rotation.z` negated, frame x at −0.56 | `ItemTransform.apply` / `ItemInHandRenderer` |
+| Cooldown overlay | white `0x7FFFFFFF`, height `ceil(16f)` px | `GuiGraphicsExtractor` |
 
-**미검증**: Blockbench 플러그인의 런타임 동작 (여기서 Blockbench를 띄울 수 없음). export 왕복 검증이 남아있습니다.
+**Not yet verified:** the Blockbench plugin has never been run end to end here — a full export round trip (export a pack from the plugin, load it, confirm it matches the reference pack) is still outstanding.
 
-## 한계
+## Limits
 
-- **보간 없음.** 프레임을 구워 넣습니다. `client/renderer/item` 패키지 전체에 `lerp`가 0건이고, 프로퍼티 인터페이스 `get(ItemStack, ClientLevel, ItemOwner, int)`에 partialTick 파라미터 자체가 없습니다
-- **shear 불가.** 회전된 본에 비균등 스케일 → 표현 불가, export 시 경고
-- **쿨다운은 `cooldown_group` 단위.** 같은 그룹이면 동시에 두 애니메이션 불가
-- **26.1+ 전용**
+- **No interpolation.** Frames are baked. The whole `client/renderer/item` package contains zero `lerp`, and the property interface `get(ItemStack, ClientLevel, ItemOwner, int)` has no partial-tick parameter at all
+- **No shear.** Non-uniform scale on a rotated bone cannot be expressed; the exporter warns
+- **One cooldown per `cooldown_group`.** Two animations cannot run at once on the same group
+- **26.1+ only** — `transformation` does not exist before that
+
+## Related work
+
+[rieyi/display-anim-preview](https://github.com/rieyi/display-anim-preview) solves the same problem the other way: it bakes whole geometry per frame, routes on `custom_model_data`, and drives the index from a datapack tick loop. That buys arbitrary per-frame geometry and works before 26.1, at the cost of duplicated geometry, a −16..32 coordinate limit, and an `item modify` every tick per player. Both approaches hit the same 20 fps ceiling, for different reasons.

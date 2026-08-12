@@ -1,105 +1,134 @@
-# 재생 클럭 — 뭘 쓸 것인가
+# Playback clocks — why cooldown, and where the ceiling is
 
-`range_dispatch`가 읽을 수 있는 숫자 프로퍼티가 애니메이션의 "재생 헤드"입니다. 26.3-snapshot-5 클라이언트 jar의 `RangeSelectItemModelProperties.class`에서 **전체 목록을 그대로 뽑았습니다.**
+The numeric property a `range_dispatch` reads is the animation's playhead. This plugin implements exactly one of them, `minecraft:cooldown`. This page records why, and what the alternatives actually do — every claim here was read out of the 26.3-snapshot-5 client jar rather than inferred.
+
+The complete list, straight from `RangeSelectItemModelProperties.class`:
 
 ```
 bundle/fullness   compass   cooldown   count   crossbow/pull
 custom_model_data   damage   time   use_cycle   use_duration
 ```
 
-## gametime은 없습니다
+## There is no gametime
 
-`minecraft:time`의 소스는 `Time$TimeSource` enum에 세 개뿐입니다.
+`minecraft:time` has three sources in the `Time$TimeSource` enum and no more:
 
 ```
 daytime   moon_phase   random
 ```
 
-즉 **raw 게임틱 카운터를 읽는 방법은 없습니다.** (`Time.class`에 `getGameTime` 참조가 있지만 그건 wobbler 갱신 주기 판정용이지 소스가 아닙니다.)
+So **there is no way to read a raw game-tick counter.** (`Time.class` does reference `getGameTime`, but that drives the wobbler's update check, not the source value.)
 
-자유 구동 클럭에 가장 가까운 건 `daytime` 하나이고, 주기가 **24000틱 = 실시간 20분**입니다. 미묘한 아이들 루프에는 쓸 만하고, 동작 애니메이션에는 못 씁니다.
+The closest thing to a free-running clock is `daytime`, whose period is **24000 ticks = 20 real minutes**. Usable for a slow idle, useless for an action.
 
-`local_time` select도 확인해봤는데, `LocalTime.class`에 `UPDATE_INTERVAL_MS` + `TimeUnit.SECONDS`가 있습니다 — **1초에 한 번만 갱신**됩니다. 클럭으로 못 씁니다.
+`local_time` (a select property) looked promising too, but `LocalTime.class` carries `UPDATE_INTERVAL_MS` with `TimeUnit.SECONDS` — it refreshes **once per second**. Not a clock.
 
-## 후보 비교
+## The candidates
 
-| 프로퍼티 | 값 | 해상도 | 트리거 | 서버 필요 | 용도 |
+| Property | Value | Resolution | Trigger | Needs a server | Good for |
 |---|---|---|---|---|---|
-| **`cooldown`** | 1.0 → 0.0 (남은 양) | 틱 (20fps) | 아이템 사용 성공 | ✗ | **1회성 동작** (발사, 스윙, 재장전) |
-| **`use_duration`** | 사용 경과 틱 (↑) | 틱 (20fps) | 우클릭 홀드 | ✗ | **홀드 동작** (조준, 활 당기기) |
-| `use_cycle` | `period` 주기 톱니파 | 틱 | 우클릭 홀드 | ✗ | 사용 중 무한 루프 |
-| `time` (daytime) | 0.0 → 1.0 / 24000틱 | 틱 | 없음 (상시) | ✗ | 아주 느린 아이들 |
-| **`custom_model_data`** (floats) | 임의 0~1 | 틱 | **없음 — 코드가 직접 씀** | 데이터팩 or 플러그인 | **우클릭 없이 임의 시점 재생** |
-| `damage` / `count` | 내구도 / 개수 | — | 서버 | **✓** | 부작용 큼, 비추 |
-| `crossbow/pull` | 0.0 → 1.0 | 틱 | 석궁 전용 | ✗ | 석궁만 |
-| `compass` | 나침반 각도 | 틱 | — | ✗ | `wobble`이 물리 감쇠 진동 |
-| `bundle/fullness` | 0.0 → 1.0 | — | — | ✗ | 클럭 아님 |
+| **`cooldown`** | 1.0 → 0.0 (remaining) | tick (20 fps) | a successful item use, or `setCooldown` | ✗ | **one-shot actions** — fire, swing, reload |
+| `use_duration` | ticks in use (↑) | tick (20 fps) | holding right click | ✗ | held actions — aiming, drawing a bow |
+| `use_cycle` | sawtooth over `period` | tick | holding right click | ✗ | looping while in use |
+| `time` (daytime) | 0.0 → 1.0 per 24000 ticks | tick | none, always running | ✗ | very slow idles |
+| `custom_model_data` (floats) | anything you write | tick | **none — code writes it** | datapack or plugin | arbitrary scrubbing |
+| `damage` / `count` | durability / stack size | — | server | ✓ | heavy side effects, avoid |
+| `crossbow/pull` | 0.0 → 1.0 | tick | crossbows only | ✗ | crossbows |
+| `compass` | needle angle | tick | — | ✗ | `wobble` gives a damped oscillation |
+| `bundle/fullness` | 0.0 → 1.0 | — | — | ✗ | not a clock |
 
-## cooldown이 1회성 동작에 최선인 이유
+## Why cooldown
 
-1. **정규화 0~1.** `scale` 계산이 필요 없습니다.
-2. **정규화된 유일한 트리거형 클럭.** 다른 트리거형(`use_duration`, `use_cycle`)은 틱 수를 그대로 돌려주므로 `scale`로 나눠야 하지만, cooldown은 그냥 0~1입니다.
-3. **속도가 데이터.** 재생 속도가 `use_cooldown.seconds`에 있습니다. 같은 팩으로 아이템마다 슬로모션/배속을 만들 수 있습니다.
-4. **트리거가 순수 바닐라.** 우클릭 성공 = 재생 시작. 서버 코드 0.
+1. **Already normalised 0–1.** The other triggerable clocks return raw tick counts and need a `scale` divisor.
+2. **Speed is data.** Playback length lives in the cooldown you hand out, so one pack drives several items at different speeds.
+3. **The trigger is free.** A server calls `setCooldown` once; nothing runs per tick afterwards.
 
-## cooldown의 진짜 단점
+### Its real downsides
 
-- **쿨다운 중에는 아이템을 못 씁니다.** 총이라면 원하는 동작이지만, "재장전 모션만 보여주고 싶다" 같은 경우엔 강제 부작용입니다.
-- **플레이어당 `cooldown_group` 하나.** 같은 그룹이면 동시에 두 애니메이션 불가.
-- **핫바에 오버레이가 뜹니다.** 그래서 코어 셰이더가 필요합니다 ([README](../README.md) 4-5).
-- 아이템이 "사용 가능"해야 합니다. 예제는 goat horn을 씁니다.
+- **The item cannot be used while the cooldown runs.** For a gun that is exactly what you want; for a pure cosmetic animation it is a forced side effect.
+- **One cooldown per `cooldown_group` per player.** Two animations cannot overlap on the same group.
+- **Vanilla draws its hotbar overlay.** Hiding it needs the optional core-shader pack.
 
-## use_duration이 나은 경우
+## 20 fps is a hard ceiling, on every clock
 
-홀드 동작이면 `use_duration`이 명백히 낫습니다.
-
-- 떼는 즉시 0으로 복귀 → 복귀 애니메이션을 따로 안 만들어도 됩니다 (역재생이 공짜)
-- 쿨다운이 안 걸리므로 아이템이 계속 사용 가능
-- 핫바에 아무것도 안 뜨므로 **코어 셰이더가 아예 필요 없습니다**
-
-대신 **방향이 반대**입니다. cooldown은 1→0이라 마지막 키프레임이 대기 포즈지만, use_duration은 0부터 올라가므로 **첫 키프레임이 대기 포즈**여야 합니다. 플러그인이 클럭 설정에 따라 자동으로 맞춥니다.
-
-예제 팩의 `fpa:aim`이 이 방식입니다.
-
-```
-/give @s minecraft:stick[minecraft:item_model="fpa:aim",minecraft:consumable={consume_seconds:3600,animation:"none",has_consume_particles:false,sound:"minecraft:intentionally_empty"},minecraft:custom_model_data={strings:["aim"]}]
-```
-
-`consume_seconds: 3600`이라 절대 완료되지 않으므로 우클릭을 무한정 홀드할 수 있습니다.
-
-## 우클릭 없이 트리거하기
-
-**바닐라 커맨드로는 쿨다운을 걸 수 없습니다.** 클라이언트 jar의 `net/minecraft/server/commands/`에 쿨다운 관련 클래스가 하나도 없고, `ItemCooldowns.addCooldown()`은 서버 Java API 전용입니다. 그래서 두 경로가 있습니다.
-
-### 1. 플러그인 (Paper / Spigot / Folia) — `clock = cooldown`
+The property interface has no partial tick at all:
 
 ```java
-player.setCooldown(itemStack, 8);   // 8틱 = 0.4초짜리 fire 애니메이션
+RangeSelectItemModelProperty.get(ItemStack, ClientLevel, ItemOwner, int seed) -> float
 ```
 
-이게 제일 깔끔합니다. **아이템에 `use_cooldown` 컴포넌트도, 사용 가능한 base item도 필요 없습니다** — `minecraft:item_model`만 붙어 있으면 됩니다. 우클릭이든 스킬 발동이든 스케줄러든 원하는 시점에 호출하면 그 순간부터 재생됩니다.
+and scanning every class under `client/renderer/item/properties/` turns up **no implementation that reaches a `DeltaTracker`**. The three that touch `Minecraft.getInstance()` are `ExtendedView`, `IsViewEntity` and `LocalTime`, none of them a clock.
 
-> ⚠️ `Material` 오버로드가 아니라 **`ItemStack` 오버로드**를 쓰세요. 쿨다운은 `cooldown_group` 단위로 키가 잡히는데(`ItemCooldowns.getCooldownGroup`), `use_cooldown.cooldown_group`을 지정한 아이템은 `Material` 오버로드가 엉뚱한 그룹을 건드립니다.
+Concretely, in bytecode:
 
-재생 해상도는 다른 클럭과 동일한 20fps입니다 (아래 참고).
+```
+Cooldown.get()    -> fconst_0 ; ItemCooldowns.getCooldownPercent(stack, 0.0F)
+UseDuration.get() -> LivingEntity.getUseItemRemainingTicks():I ; i2f
+UseCycle.get()    -> getUseItemRemainingTicks():I ; i2f ; frem
+```
 
-### 2. 데이터팩만 — `clock = custom_model_data`
+and the implementation it feeds:
 
-프레임 인덱스를 `custom_model_data.floats[i]`에서 직접 읽습니다. 트리거가 아예 없고, **코드가 0.0 → 1.0을 써주는 게 곧 재생**입니다.
+```java
+float f = endTime - startTime;
+float g = endTime - (tickCount + partialTick);
+return Mth.clamp(g / f, 0.0F, 1.0F);
+```
+
+`endTime`, `startTime` and `tickCount` are all **ints**, and `tickCount` advances once per `ItemCooldowns.tick()`. With the partial tick pinned to zero the result is `integer / D` — a **staircase with D+1 steps**, not a ramp. Packing entries between the steps does nothing, because the value never lands there.
+
+The giveaway is that the same jar calls the same method the other way for the hotbar overlay:
+
+```java
+getCooldownPercent(stack, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true))
+```
+
+Vanilla's own overlay is smooth. The item model property was deliberately handed a zero. The likely reason is render-state identity caching — `TrackingItemStackRenderState` collects `modelIdentityElements` and `RangeSelectItemModel.update()` appends to it, so a value that moved every frame would invalidate that cache every frame. That last part is inference; the staircase itself is not.
+
+### Confirmed three ways
+
+| Check | Result |
+|---|---|
+| Bytecode, 26.1.2 / 26.2 / 26.3 | `fconst_0` in all three |
+| In-game probe | 180 entries over a 60-tick cooldown, poses cycling with period 3. Under quantisation only multiples of 3 are reachable, all neutral, so the item must sit perfectly still — and it did |
+| Frame counting a 60 fps capture | 26 of 90 frames changed (29% ≈ 1/3). Per-render-frame updates would be ~100% |
+
+### What you can actually do about it
+
+Lengthen the cooldown. The denominator is `endTime - startTime`, so a longer playback has more steps:
+
+```
+1s cooldown = 20 ticks -> 21 frames
+3s cooldown = 60 ticks -> 61 frames
+```
+
+Total frame count scales with duration; **poses per real-time second stays capped at 20.**
+
+Perceived smoothness is set by change per step, not by fps. A spin covering 6° per step reads as smooth; the same 20 Hz covering 22° per step reads as steppy. Slowing the fast segments buys more than any amount of extra entries.
+
+## Triggering without a right click
+
+**No vanilla command sets an item cooldown.** There is no such command class anywhere under `net/minecraft/server/commands/`, and `ItemCooldowns.addCooldown()` is server-side Java only.
+
+### Plugin (Paper / Spigot / Folia)
+
+```java
+player.setCooldown(itemStack, 8);   // 8 ticks = the 0.4s "fire" animation
+```
+
+The item needs neither a `use_cooldown` component nor a usable base item — only `minecraft:item_model`. Call it from a right click, a skill, a scheduler, anything.
+
+> Use the **`ItemStack` overload**, not the `Material` one. Cooldowns are keyed by `cooldown_group` (`ItemCooldowns.getCooldownGroup`), and the `Material` overload will target the wrong group for an item that sets one.
+
+### Datapack only
+
+Read the frame index straight out of `custom_model_data.floats[i]` instead. There is no trigger at all — writing 0.0 → 1.0 *is* the playback:
 
 ```
 /item modify entity @s weapon.mainhand <ns>:<modifier>
 ```
 
-`minecraft:set_custom_model_data` 아이템 모디파이어 함수가 26.3에 실재합니다(`LootItemFunctions`에서 확인). 필드는 `floats` / `flags` / `strings` / `colors`.
-
-단점이 분명합니다.
-
-- **틱당 아이템 재작성 1회** → 네트워크·GC 비용. 긴 애니메이션 여러 개를 동시에 돌리면 부담됩니다.
-- 20fps 상한 (틱 단위)
-- 서브틱 보간 없음
-
-정확한 스키마 (rieyi/display-anim-preview의 동작하는 데이터팩에서 확인):
+The `minecraft:set_custom_model_data` item modifier exists in 26.3 (`LootItemFunctions`), and its list wrapper is `{ values, mode }` where `values` accepts number providers — so a scoreboard can be the frame index directly:
 
 ```json
 {
@@ -111,31 +140,31 @@ player.setCooldown(itemStack, 8);   // 8틱 = 0.4초짜리 fire 애니메이션
 }
 ```
 
-리스트 래퍼는 `{ values, mode }`이고, `values`에 number provider를 넣을 수 있어서 **스코어보드 값을 그대로 프레임 인덱스로** 쓸 수 있습니다.
+(Schema confirmed against the working datapack in `rieyi/display-anim-preview`.)
 
-## 클럭이 아닌 것도 하나: `keybind_down`
+The costs are real: **one item rewrite per tick per player**, still 20 fps, still no sub-tick interpolation. This plugin does not implement it — if you can run a plugin, `setCooldown` is strictly better.
 
-`ConditionalItemModelProperties`에 **`keybind_down`**이 있습니다 (`IsKeybindDown.class` → `KeyMapping.isDown()`). 불리언이라 클럭은 아니지만, **키 상태를 클라이언트에서 즉시** 읽습니다 — 서버 왕복 0, 지연 0. 조준 on/off처럼 즉시 전환에는 애니메이션보다 이게 맞습니다.
+## Not a clock, but worth knowing: `keybind_down`
+
+`ConditionalItemModelProperties` includes **`keybind_down`** (`IsKeybindDown.class` → `KeyMapping.isDown()`). It is a boolean, so not a playhead, but it reads the key **on the client with zero latency and zero server involvement**. For an instant state flip like aim on/off that beats any animation.
 
 ```json
 { "type": "minecraft:condition", "property": "minecraft:keybind_down",
   "keybind": "key.use",
-  "on_true":  { "...": "조준 포즈" },
-  "on_false": { "...": "기본 포즈" } }
+  "on_true":  { "…aimed pose…": "" },
+  "on_false": { "…default pose…": "" } }
 ```
 
-`use_duration`(부드러운 전환) 과 `keybind_down`(즉시) 을 조합하는 것도 가능합니다.
+## Confidence
 
-## 검증 수준
-
-| 항목 | 상태 |
+| Claim | Basis |
 |---|---|
-| 프로퍼티 전체 목록, `TimeSource` 값 | jar에서 직접 확인 |
-| `cooldown` 방향 | `getCooldownPercent(ItemStack,F)F` 호출로 확인 |
-| **모든 클럭 20fps 상한** | javap 디스어셈블: `Cooldown.get()`이 `fconst_0`으로 partialTick=0을 넘김, `UseDuration.get()`은 `getUseItemRemainingTicks():I` + `i2f` |
-| **20fps 상한 인게임 실증** | 60틱 쿨다운에 entry 180개(포즈 3종 순환)를 넣는 판별 프로브. 양자화면 3의 배수 인덱스만 도달 → 중립 포즈로 완전 정지. 실제로 정지함 = 나머지 119개는 죽은 entry |
-| **프레임 예산은 타임라인이 아니라 쿨다운** | `getCooldownPercent` 분모가 `endTime - startTime` = 쿨다운 길이. 1초 애니메이션에 2초 쿨다운 → 41단계 |
-| `use_duration` 필드(`remaining`)·int 소스 | `UseDuration.class`에서 확인 |
-| `local_time` 1초 스로틀 | `UPDATE_INTERVAL_MS` + `TimeUnit.SECONDS` |
-| **`use_cycle`의 정확한 모듈로 의미** | **미확인** — `period` 필드와 `getUseItemRemainingTicks` 사용만 확인. 플러그인 옵션으로는 넣어뒀지만 인게임에서 확인하고 쓰세요 |
-| `daytime`의 `wobble:false` 정확도 | 미확인 |
+| Full property list, `TimeSource` values | read from the jar |
+| `cooldown` direction | `getCooldownPercent(ItemStack,F)F` call site |
+| **20 fps ceiling on every clock** | javap: `Cooldown.get()` passes `fconst_0`; `UseDuration.get()` is `getUseItemRemainingTicks():I` + `i2f` |
+| **20 fps ceiling, in game** | discriminator probe described above |
+| Frame budget follows the cooldown, not the timeline | `getCooldownPercent`'s denominator is `endTime - startTime` |
+| `local_time` throttled to 1 Hz | `UPDATE_INTERVAL_MS` + `TimeUnit.SECONDS` |
+| Why Mojang passes zero | **inference.** The caching machinery is real; the causation is not proven |
+| **`use_cycle`'s exact modulo semantics** | **unverified** — only the `period` field and the `getUseItemRemainingTicks` source were confirmed |
+| `daytime` accuracy with `wobble: false` | unverified |
